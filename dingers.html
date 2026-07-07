@@ -3833,7 +3833,10 @@ function buildLeagueSetup() {
       // Save to Firebase via createLeague so ownerUID is always stored
       if(S.currentUser) {
         const leagueId = await createLeague(name, count, S.currentUser.email, S.currentUser.uid);
-        set({ leagueName: name.toUpperCase(), leagueId, isCommish: true, commishUnlocked: true, onboardingStep: 1 });
+        // Seed state immediately so loading screen clears before snapshot arrives
+        set({ leagueName: name.toUpperCase(), leagueId, isCommish: true, commishUnlocked: true,
+              commishPIN: pin, leagueSetup: true, teams, onboardingStep: 1 });
+        _leagueLoaded = false; // reset so startLeagueListener can run
         startLeagueListener(leagueId, S.currentUser);
       } else {
         // Fallback if somehow no auth user (shouldn't happen post-Option A)
