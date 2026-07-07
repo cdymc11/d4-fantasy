@@ -209,9 +209,9 @@
     </div>
     <div class="label">Your Apps</div>
     <div class="app-grid">
-      <div class="app-card" onclick="launchApp('gridiron')">
+      <div class="app-card" onclick="launchApp('nfl-confidence')">
         <div class="app-card-badge badge-live">Live</div>
-        <div class="app-card-name">Gridiron Confidence</div>
+        <div class="app-card-name">NFL Confidence</div>
         <div class="app-card-desc">NFL confidence pool. Pick every game, assign points, climb the standings.</div>
         <div class="app-card-arrow">→</div>
       </div>
@@ -225,94 +225,95 @@
 </div>
 
 <!-- GRIDIRON APP -->
-<div id="screen-gridiron" class="screen">
+<div id="screen-nfl-confidence" class="screen">
 
   <!-- HOME -->
-  <div id="page-gc-home" class="page active">
-    <div class="week-badge" id="gc-home-badge">Week —</div>
+  <div id="page-nfc-home" class="page active">
+    <div class="week-badge" id="nfc-home-badge">Week —</div>
     <div class="display">Make your <em>picks.</em></div>
     <div class="status-row">
-      <div class="dot" id="gc-home-dot"></div>
-      <span id="gc-home-status">Loading...</span>
+      <div class="dot" id="nfc-home-dot"></div>
+      <span id="nfc-home-status">Loading...</span>
     </div>
     <div class="divider"></div>
     <div class="label">Standings</div>
     <div class="card" style="padding:0;overflow:hidden;">
       <table>
         <thead><tr><th style="width:32px">#</th><th>Player</th><th class="r">Correct</th><th class="r">Pts</th></tr></thead>
-        <tbody id="gc-home-standings"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No scores yet.</td></tr></tbody>
+        <tbody id="nfc-home-standings"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No scores yet.</td></tr></tbody>
       </table>
     </div>
-    <button class="btn btn-green mt24" onclick="gcGo('picks')">Go to Pick Sheet →</button>
+    <button class="btn btn-green mt24" onclick="nfcGo('picks')">Go to Pick Sheet →</button>
   </div>
 
   <!-- PICKS -->
-  <div id="page-gc-picks" class="page">
+  <div id="page-nfc-picks" class="page">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
       <div>
-        <div class="label">Week <span id="gc-picks-week">—</span></div>
+        <div class="label">Week <span id="nfc-picks-week">—</span></div>
         <h2 style="margin:0">Pick Sheet</h2>
       </div>
-      <div style="font-size:12px;color:var(--muted);">Locks <span id="gc-picks-lock" style="color:var(--yellow);font-weight:600;">—</span></div>
+      <div style="font-size:12px;color:var(--muted);">Locks <span id="nfc-picks-lock" style="color:var(--yellow);font-weight:600;">—</span></div>
     </div>
-    <div id="gc-locked-msg" style="display:none;" class="card"><span style="color:var(--yellow);">⚠ Picks are locked for this week.</span></div>
-    <div id="gc-games-list"><div style="text-align:center;padding:40px;color:var(--muted);">No games loaded yet.</div></div>
-    <div class="picks-footer" id="gc-picks-footer">
-      <div class="progress"><strong id="gc-cnt-assigned">0</strong> / <span id="gc-cnt-total">0</span> assigned</div>
-      <button class="btn btn-green" id="gc-submit-btn" onclick="gcSubmitPicks()" disabled>Submit Picks</button>
+    <div id="nfc-locked-msg" style="display:none;" class="card"><span style="color:var(--yellow);">⚠ Picks are locked for this week.</span></div>
+    <div id="nfc-games-list"><div style="text-align:center;padding:40px;color:var(--muted);">No games loaded yet.</div></div>
+    <div class="picks-footer" id="nfc-picks-footer">
+      <div class="progress"><strong id="nfc-cnt-assigned">0</strong> / <span id="nfc-cnt-total">0</span> assigned</div>
+      <button class="btn btn-green" id="nfc-submit-btn" onclick="nfcSubmitPicks()" disabled>Submit Picks</button>
     </div>
   </div>
 
   <!-- STANDINGS -->
-  <div id="page-gc-standings" class="page">
+  <div id="page-nfc-standings" class="page">
     <div class="label">Season</div>
     <h2>Standings</h2>
     <div class="week-nav">
-      <button class="btn btn-gray" style="padding:6px 14px" onclick="gcShiftWeek(-1)">←</button>
-      <div class="week-nav-label" id="gc-standings-label">Season Total</div>
-      <button class="btn btn-gray" style="padding:6px 14px" onclick="gcShiftWeek(1)">→</button>
+      <button class="btn btn-gray" style="padding:6px 14px" onclick="nfcShiftWeek(-1)">←</button>
+      <div class="week-nav-label" id="nfc-standings-label">Season Total</div>
+      <button class="btn btn-gray" style="padding:6px 14px" onclick="nfcShiftWeek(1)">→</button>
     </div>
     <div class="card" style="padding:0;overflow:hidden;">
       <table>
         <thead><tr><th style="width:32px">#</th><th>Player</th><th class="r">Correct</th><th class="r">Points</th></tr></thead>
-        <tbody id="gc-standings-body"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No scores yet.</td></tr></tbody>
+        <tbody id="nfc-standings-body"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No scores yet.</td></tr></tbody>
       </table>
     </div>
   </div>
 
   <!-- LEAGUE -->
-  <div id="page-gc-league" class="page">
+  <div id="page-nfc-league" class="page">
     <div class="label">Your League</div>
-    <h2 id="gc-league-name">—</h2>
+    <h2 id="nfc-league-name">—</h2>
     <div class="label">Invite Code</div>
-    <div class="code-display" id="gc-league-code">——</div>
-    <p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:24px;">Share this code so others can join.</p>
+    <div class="code-display" id="nfc-league-code">——</div>
+    <p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:6px;">Share this code with people you want to invite.</p>
+    <p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:24px;">They go to <strong style="color:var(--white)">d4fantasysports.netlify.app</strong>, click Register, and enter this code to join your league automatically.</p>
     <div class="divider"></div>
     <div class="label">Members</div>
-    <div class="card" style="padding:0 20px;" id="gc-members-list">
+    <div class="card" style="padding:0 20px;" id="nfc-members-list">
       <div class="member-row" style="color:var(--muted);">Loading...</div>
     </div>
-    <div id="gc-commish-panel" style="display:none;">
+    <div id="nfc-commish-panel" style="display:none;">
       <div class="divider"></div>
       <div class="label">Commissioner Tools</div>
       <div class="card">
         <h2 style="font-size:18px;margin-bottom:14px;">Week Management</h2>
         <div class="field">
           <label>Week Number</label>
-          <input type="number" id="gc-admin-week" min="1" max="18" value="1" style="width:80px" />
+          <input type="number" id="nfc-admin-week" min="1" max="18" value="1" style="width:80px" />
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button class="btn btn-green" onclick="gcLoadWeek()">Load Week</button>
-          <button class="btn btn-gray"  onclick="gcEnterResults()">Enter Results</button>
-          <button class="btn btn-gray"  onclick="gcScoreWeek()">Score Week</button>
+          <button class="btn btn-green" onclick="nfcLoadWeek()">Load Week</button>
+          <button class="btn btn-gray"  onclick="nfcEnterResults()">Enter Results</button>
+          <button class="btn btn-gray"  onclick="nfcScoreWeek()">Score Week</button>
         </div>
-        <div class="err"  id="gc-admin-err" style="margin-top:8px;"></div>
-        <div class="info" id="gc-admin-info"></div>
+        <div class="err"  id="nfc-admin-err" style="margin-top:8px;"></div>
+        <div class="info" id="nfc-admin-info"></div>
       </div>
     </div>
   </div>
 
-</div><!-- /screen-gridiron -->
+</div><!-- /screen-nfl-confidence -->
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -332,10 +333,10 @@ const db   = getFirestore(app);
 
 // ── STATE ──
 let currentUser  = null;
-let gcLeague     = null;
-let gcWeekDoc    = null;
-let gcPicks      = {};
-let gcStandingsWk = 0;
+let nfcLeague     = null;
+let nfcWeekDoc    = null;
+let nfcPicks      = {};
+let nfcStandingsWk = 0;
 let currentApp   = null;
 
 // ── NFL SCHEDULE ──
@@ -383,14 +384,14 @@ function showScreen(name) {
     back.style.display = 'none';
     links.innerHTML = '';
     appName.textContent = 'Fantasy Sports';
-  } else if (name === 'gridiron') {
+  } else if (name === 'nfl-confidence') {
     back.style.display = '';
-    appName.textContent = '/ Gridiron Confidence';
+    appName.textContent = '/ NFL Confidence';
     links.innerHTML = `
-      <button class="nav-btn" data-p="home"      onclick="gcGo('home')">Home</button>
-      <button class="nav-btn" data-p="picks"     onclick="gcGo('picks')">Picks</button>
-      <button class="nav-btn" data-p="standings" onclick="gcGo('standings')">Standings</button>
-      <button class="nav-btn" data-p="league"    onclick="gcGo('league')">League</button>`;
+      <button class="nav-btn" data-p="home"      onclick="nfcGo('home')">Home</button>
+      <button class="nav-btn" data-p="picks"     onclick="nfcGo('picks')">Picks</button>
+      <button class="nav-btn" data-p="standings" onclick="nfcGo('standings')">Standings</button>
+      <button class="nav-btn" data-p="league"    onclick="nfcGo('league')">League</button>`;
   }
 }
 
@@ -399,24 +400,24 @@ window.goBack = function() { goDash(); };
 
 // ── LAUNCH APP ──
 window.launchApp = async function(app) {
-  if (app === 'gridiron') {
-    currentApp = 'gridiron';
-    showScreen('gridiron');
+  if (app === 'nfl-confidence') {
+    currentApp = 'nfl-confidence';
+    showScreen('nfl-confidence');
     // load league
     const usnap = await getDoc(doc(db,'users',currentUser.uid));
     if (usnap.exists()) {
       const ud = usnap.data();
-      const gcIds = (ud.leagueIds||[]).filter(id=>id.startsWith('gc_')||ud.leagueTypes?.[id]==='gridiron'||true);
+      const gcIds = (ud.leagueIds||[]).filter(id=>id.startsWith('gc_')||ud.leagueTypes?.[id]==='nfl-confidence'||true);
       if (gcIds.length) {
         const lsnap = await getDoc(doc(db,'leagues',gcIds[0]));
         if (lsnap.exists()) {
-          gcLeague = { id: lsnap.id, ...lsnap.data() };
-          gcGo('home');
+          nfcLeague = { id: lsnap.id, ...lsnap.data() };
+          nfcGo('home');
           return;
         }
       }
     }
-    gcGo('home');
+    nfcGo('home');
   }
 };
 
@@ -469,7 +470,7 @@ window.doRegister = async function() {
 
 window.doSignOut = async function() {
   await fbSignOut(auth);
-  gcLeague=null; gcWeekDoc=null; gcPicks={}; currentApp=null;
+  nfcLeague=null; nfcWeekDoc=null; nfcPicks={}; currentApp=null;
 };
 
 function authErr(code){
@@ -478,75 +479,75 @@ function authErr(code){
 }
 
 // ── GRIDIRON NAV ──
-window.gcGo = function(p) {
-  document.querySelectorAll('#screen-gridiron .page').forEach(el=>el.classList.remove('active'));
-  document.getElementById('page-gc-'+p).classList.add('active');
+window.nfcGo = function(p) {
+  document.querySelectorAll('#screen-nfl-confidence .page').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-nfc-'+p).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.p===p));
-  if(p==='home')      gcRenderHome();
-  if(p==='picks')     gcRenderPicks();
-  if(p==='standings') gcRenderStandings();
-  if(p==='league')    gcRenderLeague();
+  if(p==='home')      nfcRenderHome();
+  if(p==='picks')     nfcRenderPicks();
+  if(p==='standings') nfcRenderStandings();
+  if(p==='league')    nfcRenderLeague();
 };
 
 // ── GC HOME ──
-async function gcRenderHome() {
-  if(!gcLeague){
-    document.getElementById('gc-home-badge').textContent='No league';
-    document.getElementById('gc-home-status').textContent='Join or create a league from the League tab.';
+async function nfcRenderHome() {
+  if(!nfcLeague){
+    document.getElementById('nfc-home-badge').textContent='No league';
+    document.getElementById('nfc-home-status').textContent='Join or create a league from the League tab.';
     return;
   }
-  document.getElementById('gc-home-badge').textContent=`Week ${gcLeague.currentWeek||'—'}`;
+  document.getElementById('nfc-home-badge').textContent=`Week ${nfcLeague.currentWeek||'—'}`;
   if(currentUser){
-    const pid=`${currentUser.uid}_W${gcLeague.currentWeek}`;
-    const ps=await getDoc(doc(db,'leagues',gcLeague.id,'picks',pid));
-    const dot=document.getElementById('gc-home-dot');
-    const st=document.getElementById('gc-home-status');
+    const pid=`${currentUser.uid}_W${nfcLeague.currentWeek}`;
+    const ps=await getDoc(doc(db,'leagues',nfcLeague.id,'picks',pid));
+    const dot=document.getElementById('nfc-home-dot');
+    const st=document.getElementById('nfc-home-status');
     if(ps.exists()){dot.className='dot green';st.textContent='Picks submitted — good luck.';}
     else{dot.className='dot';st.textContent='Picks not submitted yet.';}
   }
-  gcLoadStandingsTable('gc-home-standings',true);
+  nfcLoadStandingsTable('nfc-home-standings',true);
 }
 
-async function gcLoadWeekDoc(){
-  if(!gcLeague?.currentWeek)return;
-  const s=await getDoc(doc(db,'leagues',gcLeague.id,'weeks',String(gcLeague.currentWeek)));
-  gcWeekDoc=s.exists()?s.data():null;
+async function nfcLoadWeekDoc(){
+  if(!nfcLeague?.currentWeek)return;
+  const s=await getDoc(doc(db,'leagues',nfcLeague.id,'weeks',String(nfcLeague.currentWeek)));
+  nfcWeekDoc=s.exists()?s.data():null;
 }
 
 // ── GC PICKS ──
-async function gcRenderPicks(){
-  if(!gcLeague){document.getElementById('gc-games-list').innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Join a league first.</div>';return;}
-  await gcLoadWeekDoc();
-  document.getElementById('gc-picks-week').textContent=gcLeague.currentWeek||'—';
-  const games=gcWeekDoc?.games||[];
-  const isLocked=gcWeekDoc?.isLocked||false;
-  document.getElementById('gc-locked-msg').style.display=isLocked?'':'none';
-  const list=document.getElementById('gc-games-list');
+async function nfcRenderPicks(){
+  if(!nfcLeague){document.getElementById('nfc-games-list').innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Join a league first.</div>';return;}
+  await nfcLoadWeekDoc();
+  document.getElementById('nfc-picks-week').textContent=nfcLeague.currentWeek||'—';
+  const games=nfcWeekDoc?.games||[];
+  const isLocked=nfcWeekDoc?.isLocked||false;
+  document.getElementById('nfc-locked-msg').style.display=isLocked?'':'none';
+  const list=document.getElementById('nfc-games-list');
   if(!games.length){list.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">No games loaded yet.</div>';return;}
-  document.getElementById('gc-cnt-total').textContent=games.length;
+  document.getElementById('nfc-cnt-total').textContent=games.length;
   if(currentUser){
-    const pid=`${currentUser.uid}_W${gcLeague.currentWeek}`;
-    const ps=await getDoc(doc(db,'leagues',gcLeague.id,'picks',pid));
-    gcPicks={};
+    const pid=`${currentUser.uid}_W${nfcLeague.currentWeek}`;
+    const ps=await getDoc(doc(db,'leagues',nfcLeague.id,'picks',pid));
+    nfcPicks={};
     if(ps.exists()){
       const d=ps.data();
-      if(d.scored){gcShowResults(d,games);return;}
-      (d.picks||[]).forEach(p=>{gcPicks[p.gameId]={pickedTeam:p.pickedTeam,confidencePoints:p.confidencePoints};});
+      if(d.scored){nfcShowResults(d,games);return;}
+      (d.picks||[]).forEach(p=>{nfcPicks[p.gameId]={pickedTeam:p.pickedTeam,confidencePoints:p.confidencePoints};});
     }
   }
-  list.innerHTML=games.map(g=>gcGameCard(g,isLocked)).join('');
-  document.getElementById('gc-picks-footer').style.display='';
-  gcUpdateProgress();gcUpdateSubmit();
+  list.innerHTML=games.map(g=>nfcGameCard(g,isLocked)).join('');
+  document.getElementById('nfc-picks-footer').style.display='';
+  nfcUpdateProgress();nfcUpdateSubmit();
 }
 
-function gcGameCard(g,locked,sp){
+function nfcGameCard(g,locked,sp){
   const isScored=sp&&sp.correct!==null&&sp.correct!==undefined;
-  const pick=sp||gcPicks[g.gameId]||{};
+  const pick=sp||nfcPicks[g.gameId]||{};
   const asel=pick.pickedTeam===g.awayTeam?'on':'';
   const hsel=pick.pickedTeam===g.homeTeam?'on':'';
   const cv=pick.confidencePoints||'';
-  const total=gcWeekDoc?.games?.length||16;
-  const taken=new Set(Object.entries(gcPicks).filter(([id,p])=>id!==g.gameId&&p.confidencePoints).map(([,p])=>p.confidencePoints));
+  const total=nfcWeekDoc?.games?.length||16;
+  const taken=new Set(Object.entries(nfcPicks).filter(([id,p])=>id!==g.gameId&&p.confidencePoints).map(([,p])=>p.confidencePoints));
   const opts=Array.from({length:total},(_,i)=>i+1).map(n=>{
     if(taken.has(n)&&n!=cv)return `<option value="${n}" disabled style="color:#444">${n}</option>`;
     return `<option value="${n}" ${cv==n?'selected':''}>${n}</option>`;
@@ -554,12 +555,12 @@ function gcGameCard(g,locked,sp){
   const sc=isScored?(sp.correct?'correct':'wrong'):'';
   const lk=(locked||isScored)?'locked':'';
   const pk=pick.pickedTeam?'picked':'';
-  return `<div class="game-card ${pk} ${lk} ${sc}" id="gc-${g.gameId}">
-    <div class="team away"><div class="abbr">${g.awayTeam}</div><div class="full-name">${g.awayFull}</div><button class="pick-btn ${asel}" onclick="gcPickTeam('${g.gameId}','${g.awayTeam}')">Pick</button></div>
+  return `<div class="game-card ${pk} ${lk} ${sc}" id="nfc-${g.gameId}">
+    <div class="team away"><div class="abbr">${g.awayTeam}</div><div class="full-name">${g.awayFull}</div><button class="pick-btn ${asel}" onclick="nfcPickTeam('${g.gameId}','${g.awayTeam}')">Pick</button></div>
     <div class="at">@</div>
-    <div class="team home"><div class="abbr">${g.homeTeam}</div><div class="full-name">${g.homeFull}</div><button class="pick-btn ${hsel}" onclick="gcPickTeam('${g.gameId}','${g.homeTeam}')">Pick</button></div>
+    <div class="team home"><div class="abbr">${g.homeTeam}</div><div class="full-name">${g.homeFull}</div><button class="pick-btn ${hsel}" onclick="nfcPickTeam('${g.gameId}','${g.homeTeam}')">Pick</button></div>
     <div class="conf-wrap">
-      <select class="conf-sel ${cv?'set':''}" id="cs-${g.gameId}" onchange="gcSetConf('${g.gameId}',this.value)" ${isScored?'disabled':''}>
+      <select class="conf-sel ${cv?'set':''}" id="cs-${g.gameId}" onchange="nfcSetConf('${g.gameId}',this.value)" ${isScored?'disabled':''}>
         <option value="">—</option>${opts}
       </select>
       ${isScored?`<div class="pts-earned ${sp.correct?'correct':'wrong'}">${sp.correct?'+'+sp.pointsEarned:'0'} pts</div>`:''}
@@ -568,66 +569,66 @@ function gcGameCard(g,locked,sp){
   </div>`;
 }
 
-function gcShowResults(d,games){
+function nfcShowResults(d,games){
   const sm={};(d.scoredPicks||[]).forEach(p=>{sm[p.gameId]=p;});
-  document.getElementById('gc-games-list').innerHTML=`<div class="week-summary">
+  document.getElementById('nfc-games-list').innerHTML=`<div class="week-summary">
     <div><div class="sum-val">${d.weekPoints||0}</div><div class="sum-lbl">Points</div></div>
     <div><div class="sum-val">${d.weekCorrect||0}/${games.length}</div><div class="sum-lbl">Correct</div></div>
-  </div>`+games.map(g=>gcGameCard(g,true,sm[g.gameId])).join('');
-  document.getElementById('gc-picks-footer').style.display='none';
+  </div>`+games.map(g=>nfcGameCard(g,true,sm[g.gameId])).join('');
+  document.getElementById('nfc-picks-footer').style.display='none';
 }
 
-window.gcPickTeam=function(gid,team){
-  if(!gcPicks[gid])gcPicks[gid]={};
-  gcPicks[gid].pickedTeam=team;
-  const g=gcWeekDoc.games.find(x=>x.gameId===gid);
-  const el=document.getElementById('gc-'+gid);
-  if(el&&g)el.outerHTML=gcGameCard(g,false);
-  gcUpdateProgress();gcUpdateSubmit();
+window.nfcPickTeam=function(gid,team){
+  if(!nfcPicks[gid])nfcPicks[gid]={};
+  nfcPicks[gid].pickedTeam=team;
+  const g=nfcWeekDoc.games.find(x=>x.gameId===gid);
+  const el=document.getElementById('nfc-'+gid);
+  if(el&&g)el.outerHTML=nfcGameCard(g,false);
+  nfcUpdateProgress();nfcUpdateSubmit();
 };
 
-window.gcSetConf=function(gid,val){
-  if(!gcPicks[gid])gcPicks[gid]={};
-  gcPicks[gid].confidencePoints=parseInt(val)||null;
-  const games=gcWeekDoc?.games||[];
-  document.getElementById('gc-games-list').innerHTML=games.map(g=>gcGameCard(g,false)).join('');
-  gcUpdateProgress();gcUpdateSubmit();
+window.nfcSetConf=function(gid,val){
+  if(!nfcPicks[gid])nfcPicks[gid]={};
+  nfcPicks[gid].confidencePoints=parseInt(val)||null;
+  const games=nfcWeekDoc?.games||[];
+  document.getElementById('nfc-games-list').innerHTML=games.map(g=>nfcGameCard(g,false)).join('');
+  nfcUpdateProgress();nfcUpdateSubmit();
 };
 
-function gcUpdateProgress(){
-  const n=Object.values(gcPicks).filter(p=>p.pickedTeam&&p.confidencePoints).length;
-  document.getElementById('gc-cnt-assigned').textContent=n;
+function nfcUpdateProgress(){
+  const n=Object.values(nfcPicks).filter(p=>p.pickedTeam&&p.confidencePoints).length;
+  document.getElementById('nfc-cnt-assigned').textContent=n;
 }
-function gcUpdateSubmit(){
-  const total=gcWeekDoc?.games?.length||0;
-  const done=Object.values(gcPicks).filter(p=>p.pickedTeam&&p.confidencePoints).length;
-  const btn=document.getElementById('gc-submit-btn');
+function nfcUpdateSubmit(){
+  const total=nfcWeekDoc?.games?.length||0;
+  const done=Object.values(nfcPicks).filter(p=>p.pickedTeam&&p.confidencePoints).length;
+  const btn=document.getElementById('nfc-submit-btn');
   btn.disabled=done<total;
   btn.textContent=done<total?`Submit Picks (${total-done} left)`:'Submit Picks';
 }
 
-window.gcSubmitPicks=async function(){
-  if(!currentUser||!gcLeague){toast('Not ready.','err');return;}
-  const total=gcWeekDoc?.games?.length||0;
-  const arr=Object.entries(gcPicks).map(([gameId,p])=>({gameId,pickedTeam:p.pickedTeam,confidencePoints:p.confidencePoints}));
+window.nfcSubmitPicks=async function(){
+  if(!currentUser||!nfcLeague){toast('Not ready.','err');return;}
+  const total=nfcWeekDoc?.games?.length||0;
+  const arr=Object.entries(nfcPicks).map(([gameId,p])=>({gameId,pickedTeam:p.pickedTeam,confidencePoints:p.confidencePoints}));
   if(arr.length<total){toast('Complete all picks first.','err');return;}
-  const pid=`${currentUser.uid}_W${gcLeague.currentWeek}`;
+  const pid=`${currentUser.uid}_W${nfcLeague.currentWeek}`;
   try{
-    await setDoc(doc(db,'leagues',gcLeague.id,'picks',pid),{userId:currentUser.uid,displayName:currentUser.displayName,weekNumber:gcLeague.currentWeek,submittedAt:serverTimestamp(),picks:arr});
+    await setDoc(doc(db,'leagues',nfcLeague.id,'picks',pid),{userId:currentUser.uid,displayName:currentUser.displayName,weekNumber:nfcLeague.currentWeek,submittedAt:serverTimestamp(),picks:arr});
     toast('Picks submitted!','ok');
   }catch(e){toast('Error submitting.','err');console.error(e);}
 };
 
 // ── GC STANDINGS ──
-async function gcRenderStandings(){
-  await gcLoadStandingsTable('gc-standings-body',false);
-  document.getElementById('gc-standings-label').textContent=gcStandingsWk===0?'Season Total':`Week ${gcStandingsWk}`;
+async function nfcRenderStandings(){
+  await nfcLoadStandingsTable('nfc-standings-body',false);
+  document.getElementById('nfc-standings-label').textContent=nfcStandingsWk===0?'Season Total':`Week ${nfcStandingsWk}`;
 }
-async function gcLoadStandingsTable(tbodyId,compact){
-  if(!gcLeague)return;
+async function nfcLoadStandingsTable(tbodyId,compact){
+  if(!nfcLeague)return;
   const tbody=document.getElementById(tbodyId);
   if(!tbody)return;
-  const snap=await getDocs(collection(db,'leagues',gcLeague.id,'standings'));
+  const snap=await getDocs(collection(db,'leagues',nfcLeague.id,'standings'));
   let rows=[];snap.forEach(d=>rows.push(d.data()));
   rows.sort((a,b)=>(b.totalPoints||0)-(a.totalPoints||0));
   if(!rows.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No scores yet.</td></tr>';return;}
@@ -635,58 +636,58 @@ async function gcLoadStandingsTable(tbodyId,compact){
   tbody.innerHTML=rows.map((r,i)=>`<tr>
     <td><div class="rank ${i<3?'hi':''}">${i+1}</div></td>
     <td>${r.displayName||'?'}${r.userId===currentUser?.uid?'<span class="member-you">You</span>':''}</td>
-    <td class="r" style="color:var(--muted);font-size:13px">${gcStandingsWk===0?(r.totalCorrect||0):(r.weeklyBreakdown?.[gcStandingsWk]?.correct??'—')}</td>
-    <td class="r"><div class="pts">${gcStandingsWk===0?(r.totalPoints||0):(r.weeklyBreakdown?.[gcStandingsWk]?.points||0)}</div></td>
+    <td class="r" style="color:var(--muted);font-size:13px">${nfcStandingsWk===0?(r.totalCorrect||0):(r.weeklyBreakdown?.[nfcStandingsWk]?.correct??'—')}</td>
+    <td class="r"><div class="pts">${nfcStandingsWk===0?(r.totalPoints||0):(r.weeklyBreakdown?.[nfcStandingsWk]?.points||0)}</div></td>
   </tr>`).join('');
 }
-window.gcShiftWeek=function(d){
-  const max=gcLeague?.currentWeek||1;
-  gcStandingsWk=Math.max(0,Math.min(max,gcStandingsWk+d));
-  gcRenderStandings();
+window.nfcShiftWeek=function(d){
+  const max=nfcLeague?.currentWeek||1;
+  nfcStandingsWk=Math.max(0,Math.min(max,nfcStandingsWk+d));
+  nfcRenderStandings();
 };
 
 // ── GC LEAGUE ──
-async function gcRenderLeague(){
-  if(!gcLeague){
-    document.getElementById('gc-league-name').textContent='No league';
-    document.getElementById('gc-league-code').textContent='——';
-    document.getElementById('gc-members-list').innerHTML='<div class="member-row" style="color:var(--muted)">Join or create a league.</div>';
+async function nfcRenderLeague(){
+  if(!nfcLeague){
+    document.getElementById('nfc-league-name').textContent='No league';
+    document.getElementById('nfc-league-code').textContent='——';
+    document.getElementById('nfc-members-list').innerHTML='<div class="member-row" style="color:var(--muted)">Join or create a league.</div>';
     return;
   }
-  document.getElementById('gc-league-name').textContent=gcLeague.name||'—';
-  document.getElementById('gc-league-code').textContent=gcLeague.passcode||'——';
-  if(currentUser&&gcLeague.commissionerId===currentUser.uid)document.getElementById('gc-commish-panel').style.display='';
-  const ml=document.getElementById('gc-members-list');
-  if(!gcLeague.members?.length){ml.innerHTML='<div class="member-row" style="color:var(--muted)">No members yet.</div>';return;}
-  const memberDocs=await Promise.all(gcLeague.members.map(uid=>getDoc(doc(db,'users',uid))));
+  document.getElementById('nfc-league-name').textContent=nfcLeague.name||'—';
+  document.getElementById('nfc-league-code').textContent=nfcLeague.passcode||'——';
+  if(currentUser&&nfcLeague.commissionerId===currentUser.uid)document.getElementById('nfc-commish-panel').style.display='';
+  const ml=document.getElementById('nfc-members-list');
+  if(!nfcLeague.members?.length){ml.innerHTML='<div class="member-row" style="color:var(--muted)">No members yet.</div>';return;}
+  const memberDocs=await Promise.all(nfcLeague.members.map(uid=>getDoc(doc(db,'users',uid))));
   ml.innerHTML=memberDocs.map(s=>{
     const d=s.data()||{};
     const isYou=s.id===currentUser?.uid;
-    const isCommish=s.id===gcLeague.commissionerId;
+    const isCommish=s.id===nfcLeague.commissionerId;
     return `<div class="member-row"><span>${d.displayName||'Unknown'}${isYou?'<span class="member-you">You</span>':''}${isCommish?'<span class="member-commish">Commish</span>':''}</span></div>`;
   }).join('');
 }
 
 // ── GC COMMISSIONER ──
-window.gcLoadWeek=async function(){
-  const wn=parseInt(document.getElementById('gc-admin-week').value);
-  const err=document.getElementById('gc-admin-err'),inf=document.getElementById('gc-admin-info');
+window.nfcLoadWeek=async function(){
+  const wn=parseInt(document.getElementById('nfc-admin-week').value);
+  const err=document.getElementById('nfc-admin-err'),inf=document.getElementById('nfc-admin-info');
   err.textContent='';inf.textContent='Loading...';
-  if(!gcLeague){err.textContent='No league.';inf.textContent='';return;}
+  if(!nfcLeague){err.textContent='No league.';inf.textContent='';return;}
   const games=SCHEDULE[wn];
   if(!games?.length){err.textContent='No games for that week.';inf.textContent='';return;}
   try{
-    await setDoc(doc(db,'leagues',gcLeague.id,'weeks',String(wn)),{weekNumber:wn,games,isLocked:false,fetchedAt:serverTimestamp()});
-    if(wn>=(gcLeague?.currentWeek||1)){await updateDoc(doc(db,'leagues',gcLeague.id),{currentWeek:wn});gcLeague.currentWeek=wn;}
+    await setDoc(doc(db,'leagues',nfcLeague.id,'weeks',String(wn)),{weekNumber:wn,games,isLocked:false,fetchedAt:serverTimestamp()});
+    if(wn>=(nfcLeague?.currentWeek||1)){await updateDoc(doc(db,'leagues',nfcLeague.id),{currentWeek:wn});nfcLeague.currentWeek=wn;}
     inf.textContent=`✓ ${games.length} games loaded for Week ${wn}.`;toast(`Week ${wn} loaded!`,'ok');
   }catch(e){err.textContent='Error: '+e.message;inf.textContent='';}
 };
 
-window.gcEnterResults=async function(){
-  const wn=parseInt(document.getElementById('gc-admin-week').value);
-  const err=document.getElementById('gc-admin-err');err.textContent='';
-  if(!gcLeague){err.textContent='No league.';return;}
-  const ws=await getDoc(doc(db,'leagues',gcLeague.id,'weeks',String(wn)));
+window.nfcEnterResults=async function(){
+  const wn=parseInt(document.getElementById('nfc-admin-week').value);
+  const err=document.getElementById('nfc-admin-err');err.textContent='';
+  if(!nfcLeague){err.textContent='No league.';return;}
+  const ws=await getDoc(doc(db,'leagues',nfcLeague.id,'weeks',String(wn)));
   if(!ws.exists()){err.textContent='Load the week first.';return;}
   const wd=ws.data();
   const updated=wd.games.map(g=>{
@@ -696,20 +697,20 @@ window.gcEnterResults=async function(){
     const result=wu===g.awayTeam?'away':wu===g.homeTeam?'home':null;
     return{...g,result,completed:!!result};
   });
-  await setDoc(doc(db,'leagues',gcLeague.id,'weeks',String(wn)),{...wd,games:updated,fetchedAt:serverTimestamp()});
+  await setDoc(doc(db,'leagues',nfcLeague.id,'weeks',String(wn)),{...wd,games:updated,fetchedAt:serverTimestamp()});
   toast('Results saved!','ok');
 };
 
-window.gcScoreWeek=async function(){
-  const wn=parseInt(document.getElementById('gc-admin-week').value);
-  const err=document.getElementById('gc-admin-err'),inf=document.getElementById('gc-admin-info');
+window.nfcScoreWeek=async function(){
+  const wn=parseInt(document.getElementById('nfc-admin-week').value);
+  const err=document.getElementById('nfc-admin-err'),inf=document.getElementById('nfc-admin-info');
   err.textContent='';inf.textContent='Scoring...';
-  if(!gcLeague){err.textContent='No league.';return;}
-  const ws=await getDoc(doc(db,'leagues',gcLeague.id,'weeks',String(wn)));
+  if(!nfcLeague){err.textContent='No league.';return;}
+  const ws=await getDoc(doc(db,'leagues',nfcLeague.id,'weeks',String(wn)));
   if(!ws.exists()){err.textContent='Load the week first.';inf.textContent='';return;}
   const wd=ws.data(),rm={};
   wd.games.forEach(g=>{rm[g.gameId]={result:g.result,awayTeam:g.awayTeam,homeTeam:g.homeTeam};});
-  const ps=await getDocs(collection(db,'leagues',gcLeague.id,'picks'));
+  const ps=await getDocs(collection(db,'leagues',nfcLeague.id,'picks'));
   const wp=[];ps.forEach(d=>{const pd=d.data();if(pd.weekNumber===wn)wp.push({id:d.id,...pd});});
   if(!wp.length){inf.textContent='No picks for this week.';return;}
   let scored=0;
@@ -721,8 +722,8 @@ window.gcScoreWeek=async function(){
       const ok=side===g.result,earned=ok?p.confidencePoints:0;
       pts+=earned;if(ok)correct++;return{...p,correct:ok,pointsEarned:earned};
     });
-    await updateDoc(doc(db,'leagues',gcLeague.id,'picks',pd.id),{scoredPicks:sp,weekPoints:pts,weekCorrect:correct,scored:true});
-    const sr=doc(db,'leagues',gcLeague.id,'standings',pd.userId);
+    await updateDoc(doc(db,'leagues',nfcLeague.id,'picks',pd.id),{scoredPicks:sp,weekPoints:pts,weekCorrect:correct,scored:true});
+    const sr=doc(db,'leagues',nfcLeague.id,'standings',pd.userId);
     const ss=await getDoc(sr);
     if(ss.exists()){
       const ex=ss.data(),bd=ex.weeklyBreakdown||{};bd[wn]={points:pts,correct};
