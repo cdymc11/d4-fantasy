@@ -187,7 +187,7 @@ async function doSignOut() {
 // ── Create a new league ───────────────────────────────────────────────────────
 async function createLeague(name, teamCount, userEmail, uid, startDate=null) {
   const leagueId = generateLeagueId();
-  initFirebaseRefs(leagueId);
+  const newLeagueRef = doc(db, "leagues", leagueId);
   setLeagueIdInUrl(leagueId);
   const randomNames = getRandomTeamNames(teamCount);
   const teams = Array.from({length: teamCount}, (_, i) => ({
@@ -198,7 +198,7 @@ async function createLeague(name, teamCount, userEmail, uid, startDate=null) {
     hasUsedTransaction: false,
     players: [],
   }));
-  await setDoc(leagueRef, {
+  await setDoc(newLeagueRef, {
     leagueName: name.toUpperCase(),
     ownerUID: uid,
     ownerEmail: userEmail,
@@ -207,6 +207,8 @@ async function createLeague(name, teamCount, userEmail, uid, startDate=null) {
     seasonStartDate: startDate || null,
     teams,
   });
+  // Now set the global refs so startLeagueListener reads from the right place
+  initFirebaseRefs(leagueId);
   return leagueId;
 }
 
