@@ -280,10 +280,11 @@
         <div class="app-card-desc">NFL confidence pool. Pick every game, assign points, climb the standings.</div>
         <div class="app-card-arrow">→</div>
       </div>
-      <div class="app-card coming-soon">
-        <div class="app-card-badge badge-soon">Coming Soon</div>
+      <div class="app-card" onclick="launchApp('dingers')">
+        <div class="app-card-badge badge-live">Live</div>
         <div class="app-card-name">Dingers Only</div>
         <div class="app-card-desc">Home run fantasy baseball. The only stat that matters.</div>
+        <div class="app-card-arrow">→</div>
       </div>
     </div>
   </div>
@@ -483,6 +484,15 @@ window.launchApp = async function(app) {
       }
     }
     nfcGo('home');
+  } else if (app === 'dingers') {
+    // Store current user info in localStorage so dingers.html can pick it up
+    if(currentUser) {
+      localStorage.setItem('d4_uid', currentUser.uid);
+      localStorage.setItem('d4_email', currentUser.email);
+      localStorage.setItem('d4_name', currentUser.displayName || '');
+    }
+    // Navigate to dingers.html in same tab
+    window.location.href = 'dingers.html';
   }
 };
 
