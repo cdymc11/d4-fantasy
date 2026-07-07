@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>D4 Fantasy Sports</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -220,7 +220,11 @@
 <nav id="main-nav">
   <div style="display:flex;align-items:center;gap:8px;">
     <button class="nav-back" id="nav-back" onclick="goBack()">← Back</button>
-    <div class="nav-logo" id="nav-logo" onclick="goDash()">D4 <span id="nav-app-name"></span></div>
+    <div id="nav-logo" onclick="goDash()" style="display:inline-flex;align-items:flex-start;line-height:1;cursor:pointer;margin-top:6px;">
+      <span style="font-family:'Caveat',cursive;font-size:32px;font-weight:700;color:#F0F0F0;font-style:italic;line-height:1;">D</span>
+      <span style="font-family:'Caveat',cursive;font-size:32px;font-weight:700;color:#00C853;font-style:italic;line-height:1;margin-top:13px;margin-left:-10px;">4</span>
+      <span id="nav-app-name" style="font-family:'Inter',sans-serif;font-size:13px;font-weight:500;color:#6E7681;margin-left:8px;margin-top:8px;"></span>
+    </div>
   </div>
   <div class="nav-links" id="nav-links"></div>
   <div class="nav-right">
@@ -232,7 +236,10 @@
 <!-- AUTH -->
 <div id="screen-auth" class="screen">
   <div class="auth-box">
-    <div class="auth-logo">D4</div>
+    <div style="display:inline-flex;align-items:flex-start;line-height:1;margin-bottom:4px;">
+      <span style="font-family:'Caveat',cursive;font-size:96px;font-weight:700;color:#F0F0F0;font-style:italic;line-height:1;">D</span>
+      <span style="font-family:'Caveat',cursive;font-size:96px;font-weight:700;color:#00C853;font-style:italic;line-height:1;margin-top:40px;margin-left:-28px;">4</span>
+    </div>
     <div class="auth-tag">Fantasy Sports</div>
     <div class="tab-row">
       <button class="tab active" id="tab-in"  onclick="authTab('in')">Sign In</button>
@@ -259,7 +266,10 @@
 <div id="screen-dash" class="screen">
   <div class="page active">
     <div class="dash-hero">
-      <div class="dash-greeting">Welcome to <em>D4.</em></div>
+      <div style="display:inline-flex;align-items:flex-start;line-height:1;margin-bottom:8px;">
+        <span style="font-family:'Caveat',cursive;font-size:64px;font-weight:700;color:#F0F0F0;font-style:italic;line-height:1;">D</span>
+        <span style="font-family:'Caveat',cursive;font-size:64px;font-weight:700;color:#00C853;font-style:italic;line-height:1;margin-top:26px;margin-left:-18px;">4</span>
+      </div>
       <div class="dash-sub" id="dash-sub">Choose a league to get started.</div>
     </div>
     <div class="label">Your Apps</div>
