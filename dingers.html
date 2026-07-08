@@ -3714,7 +3714,7 @@ function render() {
     return;
   }
   // Signed in but league not loaded yet — show loading state
-  if(S.currentUser && !S.leagueSetup && S.teams.length === 0) {
+  if(S.currentUser && !S.leagueSetup) {
     app.appendChild(h("div",{style:{minHeight:"100vh",background:C.bg,display:"flex",alignItems:"center",justifyContent:"center"}},
       h("div",{style:{color:C.muted,fontSize:"14px"}},"Loading your league…")
     ));
@@ -3861,6 +3861,7 @@ function handleLogin(val) {
 let _leagueLoaded = false;
 
 function startLeagueListener(leagueId, user) {
+  console.log("[D4] startLeagueListener called with:", leagueId);
   initFirebaseRefs(leagueId);
   setLeagueIdInUrl(leagueId);
   subscribeDraft();
@@ -3869,6 +3870,7 @@ function startLeagueListener(leagueId, user) {
   loadTransactions().then(() => {
     // Start live listener — commish check happens inside first snapshot
     onSnapshot(leagueRef, snap => {
+      console.log("[D4] snapshot fired, exists:", snap.exists(), "ref path:", leagueRef?.path);
       if(!snap.exists()) { set({leagueSetup:false}); return; }
       const data = snap.data();
       // Determine commish — use passed user or fall back to S.currentUser
@@ -3953,6 +3955,7 @@ async function loadLeague(user) {
     }
   }
 
+  console.log("[D4] loadLeague found leagueId:", leagueId);
   set({leagueId, authLoading:false});
   startLeagueListener(leagueId, user);
 }
