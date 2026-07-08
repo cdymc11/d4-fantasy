@@ -273,8 +273,8 @@
       <div class="dash-sub" id="dash-sub">Choose a league to get started.</div>
     </div>
     <div class="label">Your Leagues</div>
-    <div id="dash-leagues-list" style="margin-bottom:24px;">
-      <div style="color:var(--muted);font-size:13px;">Loading your leagues...</div>
+    <div id="dash-leagues-list" style="margin-bottom:24px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="color:var(--muted);font-size:13px;grid-column:1/-1;">Loading your leagues...</div>
     </div>
     <div class="divider"></div>
     <button class="btn btn-green" onclick="showCreateLeague()" style="width:100%;">+ Create a League</button>
@@ -546,29 +546,27 @@ async function renderDash() {
   list.innerHTML = '<div style="color:var(--muted);font-size:13px;">Loading...</div>';
 
   const usnap = await getDoc(doc(db,'users',currentUser.uid));
-  if (!usnap.exists()) { list.innerHTML = '<div style="color:var(--muted);font-size:13px;">No leagues yet — create one below.</div>'; return; }
+  if (!usnap.exists()) { list.innerHTML = '<div style="color:var(--muted);font-size:13px;grid-column:1/-1;">No leagues yet — create one below.</div>'; return; }
   const ids = usnap.data().leagueIds || [];
-  if (!ids.length) { list.innerHTML = '<div style="color:var(--muted);font-size:13px;">No leagues yet — create one below.</div>'; return; }
+  if (!ids.length) { list.innerHTML = '<div style="color:var(--muted);font-size:13px;grid-column:1/-1;">No leagues yet — create one below.</div>'; return; }
 
   const snaps = await Promise.all(ids.map(id => getDoc(doc(db,'leagues',id))));
   const leagues = snaps.filter(s => s.exists()).map(s => ({ id: s.id, ...s.data() }));
 
-  if (!leagues.length) { list.innerHTML = '<div style="color:var(--muted);font-size:13px;">No leagues yet — create one below.</div>'; return; }
+  if (!leagues.length) { list.innerHTML = '<div style="color:var(--muted);font-size:13px;grid-column:1/-1;">No leagues yet — create one below.</div>'; return; }
 
   list.innerHTML = leagues.map(l => {
-    const type = l.type || (l.ownerUID ? 'dingers' : 'nfl_confidence');
-    const icon = type === 'dingers' ? '⚾' : '🏈';
-    const app  = type === 'dingers' ? 'dingers' : 'nfl-confidence';
-    const role = (l.commissionerId === currentUser.uid || l.ownerUID === currentUser.uid) ? '<span style="font-size:11px;color:var(--yellow);font-weight:600;letter-spacing:1px;margin-left:8px;">COMMISH</span>' : '';
-    return `<div class="app-card" onclick="launchApp('${app}','${l.id}')" style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;">
-      <div style="display:flex;align-items:center;gap:14px;">
-        <span style="font-size:28px;">${icon}</span>
-        <div>
-          <div style="font-family:var(--display);font-size:20px;">${l.name || l.leagueName || 'League'}</div>
-          <div style="font-size:12px;color:var(--muted);">${type === 'dingers' ? 'Dingers Only' : 'NFL Confidence'}${role}</div>
-        </div>
-      </div>
-      <div style="color:var(--muted);font-size:18px;">→</div>
+    const type   = l.type || (l.ownerUID ? 'dingers' : 'nfl_confidence');
+    const icon   = type === 'dingers' ? '⚾' : '🏈';
+    const app    = type === 'dingers' ? 'dingers' : 'nfl-confidence';
+    const isCommish = l.commissionerId === currentUser.uid || l.ownerUID === currentUser.uid;
+    const appLabel  = type === 'dingers' ? 'Dingers Only' : 'NFL Confidence';
+    return `<div class="app-card" onclick="launchApp('${app}','${l.id}')" style="position:relative;">
+      <div style="font-size:28px;margin-bottom:12px;">${icon}</div>
+      <div style="font-family:var(--display);font-size:20px;margin-bottom:4px;">${l.name || l.leagueName || 'League'}</div>
+      <div style="font-size:11px;color:var(--muted);">${appLabel}</div>
+      ${isCommish ? '<div style="font-size:10px;color:var(--yellow);font-weight:700;letter-spacing:1px;margin-top:6px;">COMMISH</div>' : ''}
+      <div class="app-card-arrow">→</div>
     </div>`;
   }).join('');
 }
@@ -653,7 +651,23 @@ window.launchApp = async function(app, leagueId) {
     }
     nfcGo('lobby');
   } else if (app === 'dingers') {
-    if (leagueId) localStorage.setItem('d4_dingers_league', leagueId);
+    // Always store leagueId so dingers.html can load immediately on auth
+    if (leagueId) {
+      localStorage.setItem('d4_dingers_league', leagueId);
+    } else {
+      // Find their dingers league and store it
+      const usnap2 = await getDoc(doc(db,'users',currentUser.uid));
+      if (usnap2.exists()) {
+        const ids = usnap2.data().leagueIds || [];
+        for (const lid of ids) {
+          const lsnap = await getDoc(doc(db,'leagues',lid));
+          if (lsnap.exists() && (lsnap.data().type === 'dingers' || lsnap.data().ownerUID)) {
+            localStorage.setItem('d4_dingers_league', lid);
+            break;
+          }
+        }
+      }
+    }
     window.location.href = 'dingers.html';
   }
 };

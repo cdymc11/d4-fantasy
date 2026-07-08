@@ -3979,11 +3979,13 @@ onAuthStateChanged(auth, (user) => {
   S.currentUser = user;
   set({currentUser:user});
 
-  // Check if D4 passed a specific league ID
+  // Check if D4 passed a specific league ID — load it directly, skip search
   const specificLeague = localStorage.getItem('d4_dingers_league');
   if (specificLeague) {
     localStorage.removeItem('d4_dingers_league');
-    set({leagueId: specificLeague, authScreen: "finding_league"});
+    console.log("[D4] Using stored league ID:", specificLeague);
+    _leagueLoaded = true; // prevent loadLeague from running concurrently
+    set({leagueId: specificLeague, authScreen: null, authLoading: false});
     initFirebaseRefs(specificLeague);
     startLeagueListener(specificLeague, user);
     return;
