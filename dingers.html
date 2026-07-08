@@ -3871,11 +3871,11 @@ function startLeagueListener(leagueId, user) {
   setLeagueIdInUrl(leagueId);
   subscribeDraft();
 
-  // Load transactions then start snapshot
-  loadTransactions().then(() => {
-    // Start live listener — commish check happens inside first snapshot
-    onSnapshot(leagueRef, snap => {
-      console.log("[D4] snapshot fired, exists:", snap.exists(), "ref path:", leagueRef?.path);
+  // Start snapshot immediately, load transactions in parallel
+  loadTransactions(); // don't wait — runs in background
+  // Start live listener — commish check happens inside first snapshot
+  onSnapshot(leagueRef, snap => {
+    console.log("[D4] snapshot fired, exists:", snap.exists(), "ref path:", leagueRef?.path);
       if(!snap.exists()) { set({leagueSetup:false}); return; }
       const data = snap.data();
       // Determine commish — use passed user or fall back to S.currentUser
@@ -3924,7 +3924,6 @@ function startLeagueListener(leagueId, user) {
         draftMyTeamId: autoMyTeamId !== null ? autoMyTeamId : S.draftMyTeamId,
       });
     });
-  });
 }
 
 async function loadLeague(user) {
