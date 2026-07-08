@@ -782,7 +782,8 @@ function authErr(code){
 // ── GRIDIRON NAV ──
 window.nfcGo = function(p) {
   document.querySelectorAll('#screen-nfl-confidence .page').forEach(el=>el.classList.remove('active'));
-  document.getElementById('page-nfc-'+p).classList.add('active');
+  const page = document.getElementById('page-nfc-'+p);
+  if (page) page.classList.add('active');
   // Show/hide app header
   const hdr = document.getElementById('nfc-app-header');
   if (hdr) hdr.style.display = (p === 'lobby') ? 'none' : '';
