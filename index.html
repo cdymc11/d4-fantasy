@@ -229,17 +229,12 @@
 <body>
 <div id="toast"></div>
 
-<!-- NAV -->
+<!-- D4 HUB NAV (dashboard only) -->
 <nav id="main-nav">
-  <div style="display:flex;align-items:center;gap:8px;">
-    <button class="nav-back" id="nav-back" onclick="goBack()">← Back</button>
-    <div id="nav-logo" onclick="goDash()" style="display:inline-flex;align-items:flex-start;line-height:1;cursor:pointer;margin-top:6px;">
-      <span style="font-family:'Caveat',cursive;font-size:32px;font-weight:700;color:#F0F0F0;font-style:italic;line-height:1;">D</span>
-      <span style="font-family:'Caveat',cursive;font-size:32px;font-weight:700;color:#00C853;font-style:italic;line-height:1;margin-top:13px;margin-left:-10px;">4</span>
-      <span id="nav-app-name" style="font-family:'Inter',sans-serif;font-size:13px;font-weight:500;color:#6E7681;margin-left:8px;margin-top:8px;"></span>
-    </div>
+  <div onclick="goDash()" style="display:inline-flex;align-items:flex-start;line-height:1;cursor:pointer;margin-top:6px;">
+    <span style="font-family:'Caveat',cursive;font-size:32px;font-weight:700;color:#F0F0F0;font-style:italic;line-height:1;">D</span>
+    <span style="font-family:'Caveat',cursive;font-size:32px;font-weight:700;color:#00C853;font-style:italic;line-height:1;margin-top:13px;margin-left:-10px;">4</span>
   </div>
-  <div class="nav-links" id="nav-links"></div>
   <div class="nav-right">
     <span class="nav-user" id="nav-user"></span>
     <button class="nav-signout" onclick="doSignOut()">Sign out</button>
@@ -555,22 +550,13 @@ onAuthStateChanged(auth, async user => {
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
-  // nav state
-  const back = document.getElementById('nav-back');
-  const links = document.getElementById('nav-links');
-  const appName = document.getElementById('nav-app-name');
+  const nav = document.getElementById('main-nav');
   if (name === 'dash') {
-    back.style.display = 'none';
-    links.innerHTML = '';
-    appName.textContent = 'Fantasy Sports';
-  } else if (name === 'nfl-confidence') {
-    back.style.display = '';
-    appName.textContent = '/ NFL Confidence';
-    links.innerHTML = `
-      <button class="nav-btn" data-p="home"      onclick="nfcGo('home')">Home</button>
-      <button class="nav-btn" data-p="picks"     onclick="nfcGo('picks')">Picks</button>
-      <button class="nav-btn" data-p="standings" onclick="nfcGo('standings')">Standings</button>
-      <button class="nav-btn" data-p="league"    onclick="nfcGo('league')">League</button>`;
+    nav.classList.add('visible');
+    nav.style.display = '';
+  } else {
+    nav.classList.remove('visible');
+    nav.style.display = 'none';
   }
 }
 
