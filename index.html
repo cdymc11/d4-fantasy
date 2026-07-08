@@ -540,6 +540,7 @@ onAuthStateChanged(auth, async user => {
     currentUser = user;
     document.getElementById('nav-user').textContent = user.displayName || user.email;
     document.getElementById('main-nav').classList.add('visible');
+    document.getElementById('main-nav').style.display = '';
     showScreen('dash');
     document.getElementById('dash-sub').textContent = `Welcome back, ${user.displayName || 'friend'}.`;
     renderDash();
@@ -693,6 +694,7 @@ window.launchApp = async function(app, leagueId) {
       if (lsnap.exists()) {
         nfcLeague = { id: lsnap.id, ...lsnap.data() };
         document.getElementById('nfc-feedback-btn').style.display = 'flex';
+        document.getElementById('nfc-app-header').style.display = '';
         nfcGo('home');
         return;
       }
