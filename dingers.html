@@ -3713,9 +3713,8 @@ function render() {
     return;
   }
 
-  // Show league setup only if signed in but league doc not yet saved
-  // (shouldn't happen after Option A — createLeague handles this during signup)
-  if(!S.leagueSetup && S.teams.length === 0 && !S.currentUser) {
+  // Show league setup if signed in but no league
+  if(S.currentUser && !S.leagueSetup && S.authScreen !== "finding_league") {
     app.appendChild(buildLeagueSetup());
     return;
   }
@@ -3952,12 +3951,18 @@ async function loadLeague(user) {
       if(found.length === 1) {
         leagueId = found[0].id;
       } else if(found.length > 1) {
-        window.location.href = "index.html"; return;
+        leagueId = found[0].id; // Use first matching league
       } else {
-        window.location.href = "index.html"; return;
+        // No league found — show create league screen
+        set({authScreen:null, authLoading:false, leagueSetup:false});
+        _leagueLoaded = false;
+        return;
       }
     } catch(e) {
-      console.error("Error finding league:", e); window.location.href = "index.html"; return;
+      console.error("Error finding league:", e);
+      set({authScreen:null, authLoading:false, leagueSetup:false});
+      _leagueLoaded = false;
+      return;
     }
   }
 

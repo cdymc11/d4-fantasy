@@ -293,8 +293,45 @@
 <!-- GRIDIRON APP -->
 <div id="screen-nfl-confidence" class="screen">
 
+  <!-- LOBBY (no league) -->
+  <div id="page-nfc-lobby" class="page">
+    <div class="label">NFL Confidence League</div>
+    <div class="display">Join or create a <em>league.</em></div>
+    <p style="font-size:13px;color:var(--muted);margin-top:12px;">Create a new league and invite friends, or join one with an invite code.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px;">
+      <div class="card" style="cursor:pointer;" onclick="nfcShowCreate()">
+        <div style="font-size:28px;margin-bottom:10px;">🏟️</div>
+        <div style="font-family:var(--display);font-size:20px;margin-bottom:6px;">Create League</div>
+        <div style="font-size:12px;color:var(--muted);">Start a new confidence pool.</div>
+      </div>
+      <div class="card" style="cursor:pointer;" onclick="nfcShowJoin()">
+        <div style="font-size:28px;margin-bottom:10px;">🎟️</div>
+        <div style="font-family:var(--display);font-size:20px;margin-bottom:6px;">Join League</div>
+        <div style="font-size:12px;color:var(--muted);">Enter an invite code.</div>
+      </div>
+    </div>
+    <div id="nfc-create-form" class="card mt24" style="display:none;">
+      <h2 style="font-size:18px;">New League</h2>
+      <div class="field"><label>League Name</label><input type="text" id="nfc-new-name" placeholder="e.g. Sunday Crew" /></div>
+      <div class="err" id="nfc-create-err"></div>
+      <div style="display:flex;gap:10px;margin-top:12px;">
+        <button class="btn btn-gray" onclick="nfcHideForms()">Cancel</button>
+        <button class="btn btn-green" onclick="nfcDoCreate()">Create</button>
+      </div>
+    </div>
+    <div id="nfc-join-form" class="card mt24" style="display:none;">
+      <h2 style="font-size:18px;">Join a League</h2>
+      <div class="field"><label>Invite Code</label><input type="text" id="nfc-join-code" placeholder="6-digit code" maxlength="6" style="letter-spacing:4px;font-family:var(--display);font-size:22px;" /></div>
+      <div class="err" id="nfc-join-err"></div>
+      <div style="display:flex;gap:10px;margin-top:12px;">
+        <button class="btn btn-gray" onclick="nfcHideForms()">Cancel</button>
+        <button class="btn btn-green" onclick="nfcDoJoin()">Join</button>
+      </div>
+    </div>
+  </div>
+
   <!-- HOME -->
-  <div id="page-nfc-home" class="page active">
+  <div id="page-nfc-home" class="page">
     <div class="week-badge" id="nfc-home-badge">Week —</div>
     <div class="display">Make your <em>picks.</em></div>
     <div class="status-row">
@@ -384,7 +421,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as fbSignOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, getDocs, collection, query, where, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, addDoc, updateDoc, getDocs, collection, query, where, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app  = initializeApp({
   apiKey:            "AIzaSyCcomSTbMtiqa7SQVaAC-G4zcYRsXp_YNU",
@@ -473,17 +510,22 @@ window.launchApp = async function(app) {
     const usnap = await getDoc(doc(db,'users',currentUser.uid));
     if (usnap.exists()) {
       const ud = usnap.data();
-      const gcIds = (ud.leagueIds||[]).filter(id=>id.startsWith('gc_')||ud.leagueTypes?.[id]==='nfl-confidence'||true);
-      if (gcIds.length) {
-        const lsnap = await getDoc(doc(db,'leagues',gcIds[0]));
+      const ids = ud.leagueIds || [];
+      // Check each league to find an NFL Confidence one
+      for (const lid of ids) {
+        const lsnap = await getDoc(doc(db,'leagues',lid));
         if (lsnap.exists()) {
-          nfcLeague = { id: lsnap.id, ...lsnap.data() };
-          nfcGo('home');
-          return;
+          const ld = lsnap.data();
+          if (ld.type === 'nfl_confidence' || ld.passcode) {
+            nfcLeague = { id: lsnap.id, ...ld };
+            nfcGo('home');
+            return;
+          }
         }
       }
     }
-    nfcGo('home');
+    // No league found — show lobby
+    nfcGo('lobby');
   } else if (app === 'dingers') {
     // Store current user info in localStorage so dingers.html can pick it up
     if(currentUser) {
@@ -562,6 +604,67 @@ window.nfcGo = function(p) {
   if(p==='picks')     nfcRenderPicks();
   if(p==='standings') nfcRenderStandings();
   if(p==='league')    nfcRenderLeague();
+};
+
+// ── NFC LOBBY ──
+window.nfcShowCreate = function() {
+  document.getElementById('nfc-create-form').style.display = '';
+  document.getElementById('nfc-join-form').style.display = 'none';
+};
+window.nfcShowJoin = function() {
+  document.getElementById('nfc-join-form').style.display = '';
+  document.getElementById('nfc-create-form').style.display = 'none';
+};
+window.nfcHideForms = function() {
+  document.getElementById('nfc-create-form').style.display = 'none';
+  document.getElementById('nfc-join-form').style.display = 'none';
+};
+window.nfcDoCreate = async function() {
+  const name = document.getElementById('nfc-new-name').value.trim();
+  const err = document.getElementById('nfc-create-err');
+  err.textContent = '';
+  if (!name) { err.textContent = 'Enter a league name.'; return; }
+  const passcode = String(Math.floor(100000 + Math.random() * 900000));
+  try {
+    const ref = await addDoc(collection(db,'leagues'), {
+      name, passcode, type: 'nfl_confidence',
+      commissionerId: currentUser.uid,
+      members: [currentUser.uid],
+      currentWeek: 1,
+      createdAt: serverTimestamp()
+    });
+    await updateDoc(doc(db,'users',currentUser.uid), { leagueIds: arrayUnion(ref.id) });
+    await setDoc(doc(db,'leagues',ref.id,'standings',currentUser.uid), {
+      userId: currentUser.uid, displayName: currentUser.displayName,
+      totalPoints: 0, totalCorrect: 0, weeklyBreakdown: {}
+    });
+    nfcLeague = { id: ref.id, name, passcode, type:'nfl_confidence', commissionerId: currentUser.uid, members: [currentUser.uid], currentWeek: 1 };
+    toast('League created! Code: ' + passcode, 'ok');
+    nfcGo('home');
+  } catch(e) { err.textContent = 'Error creating league.'; console.error(e); }
+};
+window.nfcDoJoin = async function() {
+  const code = document.getElementById('nfc-join-code').value.trim();
+  const err = document.getElementById('nfc-join-err');
+  err.textContent = '';
+  if (code.length !== 6) { err.textContent = 'Enter a valid 6-digit code.'; return; }
+  try {
+    const q = query(collection(db,'leagues'), where('passcode','==',code));
+    const snap = await getDocs(q);
+    if (snap.empty) { err.textContent = 'No league found with that code.'; return; }
+    const leagueDoc = snap.docs[0];
+    const ld = leagueDoc.data();
+    if (ld.members?.includes(currentUser.uid)) { err.textContent = "You're already in this league."; return; }
+    await updateDoc(doc(db,'leagues',leagueDoc.id), { members: arrayUnion(currentUser.uid) });
+    await updateDoc(doc(db,'users',currentUser.uid), { leagueIds: arrayUnion(leagueDoc.id) });
+    await setDoc(doc(db,'leagues',leagueDoc.id,'standings',currentUser.uid), {
+      userId: currentUser.uid, displayName: currentUser.displayName,
+      totalPoints: 0, totalCorrect: 0, weeklyBreakdown: {}
+    });
+    nfcLeague = { id: leagueDoc.id, ...ld, members: [...(ld.members||[]), currentUser.uid] };
+    toast('Joined ' + (ld.name||'league') + '!', 'ok');
+    nfcGo('home');
+  } catch(e) { err.textContent = 'Error joining league.'; console.error(e); }
 };
 
 // ── GC HOME ──
