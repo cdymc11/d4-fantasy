@@ -3957,7 +3957,7 @@ async function loadLeague(user) {
   }
 
   console.log("[D4] loadLeague found leagueId:", leagueId);
-  set({leagueId, authLoading:false});
+  set({leagueId, authLoading:false, authScreen:null});
   startLeagueListener(leagueId, user);
 }
 
