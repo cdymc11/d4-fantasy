@@ -90,14 +90,12 @@
   </div>
 </div>
 <div id="app"></div>
-<div id="d4-back-btn" style="position:fixed;top:10px;left:10px;z-index:10000;display:none;">
-  <button onclick="window.location.href='index.html'" style="background:#161B22;border:1px solid #2A2D35;color:#6E7681;font-family:Inter,sans-serif;font-size:12px;font-weight:600;padding:6px 12px;border-radius:6px;cursor:pointer;">← D4</button>
-</div>
+<button onclick="window.location.href='index.html'" style="position:fixed;top:10px;left:10px;z-index:10000;background:#161B22;border:1px solid #2A2D35;color:#6E7681;font-family:Inter,sans-serif;font-size:12px;font-weight:600;padding:6px 12px;border-radius:6px;cursor:pointer;">← D4</button>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, initializeFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 // Note: using modular SDK with experimentalForceLongPolling to avoid eval
 
 // ── Firebase ──────────────────────────────────────────────────────────────────
@@ -107,10 +105,11 @@ const firebaseConfig = {
   projectId: "d4-fantasy-sports",
   storageBucket: "d4-fantasy-sports.firebasestorage.app",
   messagingSenderId: "512839130956",
-  appId: "1:512839130956:web:1ea3bad0786a8a9ae939e9"
+  appId: "1:512839130956:web:1ea3bad0786a8a9ae939e9",
+  measurementId: "G-7JQCJL4QV1"
 };
 const firebaseApp = initializeApp(firebaseConfig);
-const db = initializeFirestore(firebaseApp, { experimentalForceLongPolling: true });
+const db = getFirestore(firebaseApp);
 const auth = getAuth(firebaseApp);
 
 // ── Read league ID from URL (?league=XK9M4P) ─────────────────────────────────
@@ -187,7 +186,7 @@ async function doSignOut() {
 // ── Create a new league ───────────────────────────────────────────────────────
 async function createLeague(name, teamCount, userEmail, uid, startDate=null) {
   const leagueId = generateLeagueId();
-  const newLeagueRef = doc(db, "leagues", leagueId);
+  initFirebaseRefs(leagueId);
   setLeagueIdInUrl(leagueId);
   const randomNames = getRandomTeamNames(teamCount);
   const teams = Array.from({length: teamCount}, (_, i) => ({
@@ -198,24 +197,15 @@ async function createLeague(name, teamCount, userEmail, uid, startDate=null) {
     hasUsedTransaction: false,
     players: [],
   }));
-  try {
-    console.log("[D4] writing to Firestore, leagueId:", leagueId);
-    await setDoc(newLeagueRef, {
-      leagueName: name.toUpperCase(),
-      ownerUID: uid,
-      ownerEmail: userEmail,
-      createdAt: new Date().toISOString(),
-      lastUpdated: new Date().toISOString(),
-      seasonStartDate: startDate || null,
-      teams,
-    });
-    console.log("[D4] setDoc succeeded");
-  } catch(e) {
-    console.error("[D4] setDoc FAILED:", e.code, e.message);
-    throw e;
-  }
-  // Now set the global refs so startLeagueListener reads from the right place
-  initFirebaseRefs(leagueId);
+  await setDoc(leagueRef, {
+    leagueName: name.toUpperCase(),
+    ownerUID: uid,
+    ownerEmail: userEmail,
+    createdAt: new Date().toISOString(),
+    lastUpdated: new Date().toISOString(),
+    seasonStartDate: startDate || null,
+    teams,
+  });
   return leagueId;
 }
 
@@ -367,7 +357,7 @@ let S = {
   leagueRules: null,                // custom rules set by commissioner
   leagueSettings: null,             // { hrPts, hbpPts, maxTransactions, txDeadline, loserPositions }
   currentUser: null,     // Firebase Auth user object
-  authScreen: urlLeagueId ? "signin" : "landing", // landing|signin|signup|forgot
+  authScreen: "finding_league",
   authEmail: "", authPassword: "", authError: "", authLoading: false,
   isCommish: false,      // true if currentUser is league owner
   setupStep: "check", // "check" | "new" | "join"
@@ -3572,7 +3562,7 @@ function buildPickLeague() {
         onClick:async()=>{
           initFirebaseRefs(league.id);
           setLeagueIdInUrl(league.id);
-          set({leagueId:league.id, authScreen:"landing"});
+          window.location.href = "index.html";
           window.location.reload();
         }
       },league.name || league.id));
@@ -3607,172 +3597,6 @@ function buildAuthScreen() {
   wrap.appendChild(logo);
 
   const card = h("div",{style:{background:C.card,border:`1px solid ${C.border}`,borderRadius:"16px",padding:"28px 24px",width:"100%",maxWidth:"400px",boxShadow:`0 4px 24px ${C.accent}11`}});
-
-  // ── Landing screen ────────────────────────────────────────────────────────
-  if(S.authScreen === "landing") {
-    card.appendChild(h("div",{style:{textAlign:"center",marginBottom:"24px"}},
-      h("div",{style:{color:C.text,fontWeight:"800",fontSize:"20px",marginBottom:"6px"}},"Welcome"),
-      h("div",{style:{color:C.muted,fontSize:"13px"}},"Sign in to your league or create a new one.")
-    ));
-    if(S.authError) card.appendChild(h("div",{style:{color:C.red,fontSize:"12px",marginBottom:"12px",textAlign:"center"}},S.authError));
-    card.appendChild(h("button",{
-      style:{width:"100%",padding:"13px",borderRadius:"10px",cursor:"pointer",fontWeight:"800",fontSize:"15px",background:C.accent,border:"none",color:"#fff",marginBottom:"10px"},
-      onClick:()=>set({authScreen:"signin",authError:""})
-    },"Sign In"));
-    card.appendChild(h("button",{
-      style:{width:"100%",padding:"13px",borderRadius:"10px",cursor:"pointer",fontWeight:"700",fontSize:"15px",background:"transparent",border:`1px solid ${C.accent}`,color:C.accent,marginBottom:"8px"},
-      onClick:()=>set({authScreen:"register",authError:""})
-    },"Create Account (Join a League)"));
-    card.appendChild(h("button",{
-      style:{width:"100%",padding:"11px",borderRadius:"10px",cursor:"pointer",fontWeight:"600",fontSize:"13px",background:"transparent",border:`1px solid ${C.border}`,color:C.muted},
-      onClick:()=>set({authScreen:"signup",authError:""})
-    },"Create New League (Commissioner)"));
-  }
-
-  // ── Sign in ───────────────────────────────────────────────────────────────
-  else if(S.authScreen === "signin") {
-    card.appendChild(h("div",{style:{color:C.text,fontWeight:"800",fontSize:"18px",marginBottom:"20px"}},"Sign In"));
-    if(S.authError) card.appendChild(h("div",{style:{color:C.red,fontSize:"12px",marginBottom:"12px",padding:"8px 12px",background:C.red+"11",borderRadius:"6px"}},S.authError));
-
-    const emailInp = h("input",{type:"email",placeholder:"Email address",style:{width:"100%",padding:"11px 14px",borderRadius:"8px",background:C.bg,border:`1px solid ${C.border}`,color:C.text,fontSize:"16px",outline:"none",marginBottom:"10px",boxSizing:"border-box"}});
-    const passInp = h("input",{type:"password",placeholder:"Password",style:{width:"100%",padding:"11px 14px",borderRadius:"8px",background:C.bg,border:`1px solid ${C.border}`,color:C.text,fontSize:"16px",outline:"none",marginBottom:"16px",boxSizing:"border-box"}});
-    card.appendChild(emailInp);
-    card.appendChild(passInp);
-
-    const signInBtn = h("button",{
-      style:{width:"100%",padding:"13px",borderRadius:"10px",cursor:"pointer",fontWeight:"800",fontSize:"15px",background:C.accent,border:"none",color:"#fff",marginBottom:"12px",opacity:S.authLoading?"0.6":"1"},
-      onClick: async () => {
-        const email = emailInp.value.trim();
-        const pass = passInp.value;
-        if(!email || !pass) { set({authError:"Please enter your email and password."}); return; }
-        set({authLoading:true, authError:""});
-        try {
-          await signInWithEmailAndPassword(auth, email, pass);
-                    // onAuthStateChanged handles the rest
-        } catch(e) {
-          const msg = e.code === "auth/user-not-found" || e.code === "auth/wrong-password" || e.code === "auth/invalid-credential"
-            ? "Incorrect email or password." : e.message;
-          set({authLoading:false, authError:msg});
-        }
-      }
-    }, S.authLoading ? "Signing in…" : "Sign In");
-    passInp.addEventListener("keydown", e => { if(e.key==="Enter") signInBtn.click(); });
-    card.appendChild(signInBtn);
-
-    const bottomRow = h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"10px"}});
-    bottomRow.appendChild(h("button",{style:{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:"12px",padding:"0"},onClick:()=>set({authScreen:"landing",authError:""})},"← Back"));
-    bottomRow.appendChild(h("button",{style:{background:"none",border:"none",color:C.accent,cursor:"pointer",fontSize:"12px",padding:"0"},onClick:()=>set({authScreen:"forgot",authError:""})},"Forgot password?"));
-    card.appendChild(bottomRow);
-    // New here? option — for owners joining an existing league
-    const newHereDiv = h("div",{style:{borderTop:`1px solid ${C.border}`,paddingTop:"12px",textAlign:"center"}});
-    newHereDiv.appendChild(h("div",{style:{color:C.muted,fontSize:"12px",marginBottom:"8px"}},"New here? Create an account to join your league."));
-    newHereDiv.appendChild(h("button",{
-      style:{width:"100%",padding:"11px",borderRadius:"10px",cursor:"pointer",fontWeight:"700",fontSize:"14px",background:"transparent",border:`1px solid ${C.accent}`,color:C.accent},
-      onClick:()=>set({authScreen:"register",authError:""})
-    },"Create Account"));
-    card.appendChild(newHereDiv);
-  }
-
-  // ── Register (join existing league) ──────────────────────────────────────
-  else if(S.authScreen === "register") {
-    card.appendChild(h("div",{style:{color:C.text,fontWeight:"800",fontSize:"18px",marginBottom:"6px"}},"Create Account"));
-    card.appendChild(h("div",{style:{color:C.muted,fontSize:"12px",lineHeight:"1.5",marginBottom:"20px"}},"Use the email address your commissioner assigned to your team. You\'ll be auto-joined to your league."));
-    if(S.authError) card.appendChild(h("div",{style:{color:C.red,fontSize:"12px",marginBottom:"12px",padding:"8px 12px",background:C.red+"11",borderRadius:"6px"}},S.authError));
-    const regEmailInp = h("input",{type:"email",placeholder:"Your email address",style:{width:"100%",padding:"11px 14px",borderRadius:"8px",background:C.bg,border:`1px solid ${C.border}`,color:C.text,fontSize:"16px",outline:"none",marginBottom:"10px",boxSizing:"border-box"}});
-    const regPassInp = h("input",{type:"password",placeholder:"Choose a password (6+ characters)",style:{width:"100%",padding:"11px 14px",borderRadius:"8px",background:C.bg,border:`1px solid ${C.border}`,color:C.text,fontSize:"16px",outline:"none",marginBottom:"16px",boxSizing:"border-box"}});
-    card.appendChild(regEmailInp);
-    card.appendChild(regPassInp);
-    card.appendChild(h("button",{
-      style:{width:"100%",padding:"13px",borderRadius:"10px",cursor:"pointer",fontWeight:"800",fontSize:"15px",background:C.accent,border:"none",color:"#fff",marginBottom:"12px",opacity:S.authLoading?"0.6":"1"},
-      onClick: async () => {
-        const email = regEmailInp.value.trim();
-        const pass = regPassInp.value;
-        if(!email) { set({authError:"Please enter your email."}); return; }
-        if(pass.length < 6) { set({authError:"Password must be at least 6 characters."}); return; }
-        set({authLoading:true, authError:""});
-        try {
-          await createUserWithEmailAndPassword(auth, email, pass);
-          // onAuthStateChanged will fire and find their league automatically
-        } catch(e) {
-          const msg = e.code === "auth/email-already-in-use"
-            ? "An account with this email already exists. Sign in instead."
-            : e.message;
-          set({authLoading:false, authError:msg});
-        }
-      }
-    }, S.authLoading ? "Creating account…" : "Create Account & Join League"));
-    card.appendChild(h("button",{style:{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:"12px",padding:"0"},onClick:()=>set({authScreen:"signin",authError:""})},"← Back to Sign In"));
-  }
-
-  // ── Sign up (create new league) ───────────────────────────────────────────
-  else if(S.authScreen === "signup") {
-    card.appendChild(h("div",{style:{color:C.text,fontWeight:"800",fontSize:"18px",marginBottom:"6px"}},"Create New League"));
-    card.appendChild(h("div",{style:{color:C.muted,fontSize:"12px",marginBottom:"20px"}},"You'll be the commissioner. Invite others after setup."));
-    if(S.authError) card.appendChild(h("div",{style:{color:C.red,fontSize:"12px",marginBottom:"12px",padding:"8px 12px",background:C.red+"11",borderRadius:"6px"}},S.authError));
-
-    const emailInp = h("input",{type:"email",placeholder:"Your email address",style:{width:"100%",padding:"11px 14px",borderRadius:"8px",background:C.bg,border:`1px solid ${C.border}`,color:C.text,fontSize:"16px",outline:"none",marginBottom:"10px",boxSizing:"border-box"}});
-    const passInp = h("input",{type:"password",placeholder:"Choose a password (6+ characters)",style:{width:"100%",padding:"11px 14px",borderRadius:"8px",background:C.bg,border:`1px solid ${C.border}`,color:C.text,fontSize:"16px",outline:"none",marginBottom:"10px",boxSizing:"border-box"}});
-    const nameInp = h("input",{type:"text",placeholder:"League name (e.g. Dingers Only 2026)",style:{width:"100%",padding:"11px 14px",borderRadius:"8px",background:C.bg,border:`1px solid ${C.border}`,color:C.text,fontSize:"16px",outline:"none",marginBottom:"10px",boxSizing:"border-box"}});
-    // Start date
-    const startDateWrap = h("div",{style:{marginBottom:"16px"}});
-    startDateWrap.appendChild(h("div",{style:{color:C.muted,fontSize:"12px",marginBottom:"6px"}},"Season Start Date (optional) — stats before this date won\'t count"));
-    const startDateInp = h("input",{type:"date",style:{width:"100%",padding:"11px 14px",borderRadius:"8px",background:C.bg,border:`1px solid ${C.border}`,color:C.text,fontSize:"15px",outline:"none",boxSizing:"border-box"}});
-    startDateWrap.appendChild(startDateInp);
-    startDateWrap.appendChild(h("div",{style:{color:C.muted,fontSize:"11px",marginTop:"4px"}},"Leave blank to count all stats from MLB Opening Day."));
-    card.appendChild(emailInp); card.appendChild(passInp); card.appendChild(nameInp); card.appendChild(startDateWrap);
-
-    card.appendChild(h("button",{
-      style:{width:"100%",padding:"13px",borderRadius:"10px",cursor:"pointer",fontWeight:"800",fontSize:"15px",background:C.accent,border:"none",color:"#fff",marginBottom:"12px",opacity:S.authLoading?"0.6":"1"},
-      onClick: async () => {
-        const email = emailInp.value.trim();
-        const pass = passInp.value;
-        const name = nameInp.value.trim() || "DINGERS ONLY";
-        if(!email) { set({authError:"Please enter your email."}); return; }
-        if(pass.length < 6) { set({authError:"Password must be at least 6 characters."}); return; }
-        set({authLoading:true, authError:""});
-        try {
-          const cred = await createUserWithEmailAndPassword(auth, email, pass);
-          const startDate = startDateInp.value || null;
-          const leagueId = await createLeague(name, S.setupTeamCount||10, email, cred.user.uid, startDate);
-          try { logEvent(analytics, "league_created", {leagueId}); } catch(e) {}
-          set({authLoading:false, leagueId, isCommish:true, commishUnlocked:true, onboardingStep:1});
-          // onAuthStateChanged + onSnapshot handle the rest
-        } catch(e) {
-          const msg = e.code === "auth/email-already-in-use"
-            ? "An account with this email already exists. Sign in instead."
-            : e.message;
-          set({authLoading:false, authError:msg});
-        }
-      }
-    }, S.authLoading ? "Creating league…" : "Create League & Account"));
-
-    card.appendChild(h("button",{style:{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:"12px",padding:"0"},onClick:()=>set({authScreen:"landing",authError:""})},"← Back"));
-  }
-
-  // ── Forgot password ───────────────────────────────────────────────────────
-  else if(S.authScreen === "forgot") {
-    card.appendChild(h("div",{style:{color:C.text,fontWeight:"800",fontSize:"18px",marginBottom:"6px"}},"Reset Password"));
-    card.appendChild(h("div",{style:{color:C.muted,fontSize:"12px",marginBottom:"20px"}},"We'll send a reset link to your email."));
-    if(S.authError) card.appendChild(h("div",{style:{color:S.authError.startsWith("✓")?C.green:C.red,fontSize:"12px",marginBottom:"12px",padding:"8px 12px",background:(S.authError.startsWith("✓")?C.green:C.red)+"11",borderRadius:"6px"}},S.authError));
-    const emailInp = h("input",{type:"email",placeholder:"Your email address",style:{width:"100%",padding:"11px 14px",borderRadius:"8px",background:C.bg,border:`1px solid ${C.border}`,color:C.text,fontSize:"16px",outline:"none",marginBottom:"16px",boxSizing:"border-box"}});
-    card.appendChild(emailInp);
-    card.appendChild(h("button",{
-      style:{width:"100%",padding:"13px",borderRadius:"10px",cursor:"pointer",fontWeight:"800",fontSize:"15px",background:C.accent,border:"none",color:"#fff",marginBottom:"12px"},
-      onClick: async () => {
-        const email = emailInp.value.trim();
-        if(!email) { set({authError:"Please enter your email."}); return; }
-        try {
-          await sendPasswordResetEmail(auth, email);
-          set({authError:"✓ Reset email sent — check your inbox."});
-        } catch(e) { set({authError:e.message}); }
-      }
-    },"Send Reset Email"));
-    card.appendChild(h("button",{style:{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:"12px",padding:"0"},onClick:()=>set({authScreen:"signin",authError:""})},"← Back to Sign In"));
-  }
-
-  wrap.appendChild(card);
-  return wrap;
-}
 
 function buildLeagueSetup() {
   const wrap = h("div",{style:{minHeight:"100vh",background:C.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"32px 24px"}});
@@ -3841,15 +3665,9 @@ function buildLeagueSetup() {
 
       // Save to Firebase via createLeague so ownerUID is always stored
       if(S.currentUser) {
-        console.log("[D4] createLeague starting...");
         const leagueId = await createLeague(name, count, S.currentUser.email, S.currentUser.uid);
-        console.log("[D4] createLeague done, leagueId:", leagueId);
-        // Store leagueId so loadLeague finds it directly
-        localStorage.setItem("lastLeagueId", leagueId);
-        // Reset and re-run loadLeague exactly like original signup flow
-        _leagueLoaded = false;
-        await loadLeague(S.currentUser);
-        console.log("[D4] loadLeague called after createLeague");
+        set({ leagueName: name.toUpperCase(), leagueSetup: true, leagueId,
+              isCommish: true, commishUnlocked: true, onboardingStep: 1 });
       } else {
         // Fallback if somehow no auth user (shouldn't happen post-Option A)
         await setDoc(leagueRef, { teams, leagueName: name, lastUpdated: new Date().toISOString() });
@@ -3948,7 +3766,11 @@ function render() {
   }
 
   // Show league picker if signed in but no league selected
-  if(S.authScreen === "pick_league" || S.authScreen === "finding_league") {
+  if(S.authScreen === "finding_league") {
+    // Still loading — show nothing (splash handles this)
+    return document.createElement("div");
+  }
+  if(S.authScreen === "pick_league") {
     app.appendChild(buildPickLeague());
     return;
   }
@@ -4107,17 +3929,14 @@ function handleLogin(val) {
 let _leagueLoaded = false;
 
 function startLeagueListener(leagueId, user) {
-  console.log("[D4] startLeagueListener:", leagueId);
   initFirebaseRefs(leagueId);
   setLeagueIdInUrl(leagueId);
   subscribeDraft();
 
   // Load transactions then start snapshot
   loadTransactions().then(() => {
-    console.log("[D4] loadTransactions done, setting up onSnapshot");
     // Start live listener — commish check happens inside first snapshot
     onSnapshot(leagueRef, snap => {
-      console.log("[D4] onSnapshot fired, exists:", snap.exists());
       if(!snap.exists()) { set({leagueSetup:false}); return; }
       const data = snap.data();
       // Determine commish — use passed user or fall back to S.currentUser
@@ -4213,49 +4032,22 @@ async function loadLeague(user) {
   startLeagueListener(leagueId, user);
 }
 
-// D4 integration — boot Dingers Only with an already-authenticated Firebase user
-window.doBootDingers = function(user) {
-  if(!user) return;
-  _leagueLoaded = false;
-  S.currentUser = user;
-  set({currentUser:user, authScreen:"finding_league"});
-  loadLeague(user);
-  const _splash = document.getElementById("splash-screen");
-  if(_splash) {
-    setTimeout(() => {
-      _splash.classList.add("fade-out");
-      setTimeout(() => { if(_splash.parentNode) _splash.parentNode.removeChild(_splash); }, 400);
-    }, 800);
-  }
-};
-
-// Auto-boot if D4 user is stored in localStorage (direct URL navigation)
 onAuthStateChanged(auth, (user) => {
   if(!user) {
-    _leagueLoaded = false;
-    const leagueId = getLeagueIdFromUrl();
-    set({currentUser:null, leagueSetup:false, teams:[], isCommish:false,
-         commishUnlocked:false, leagueId:leagueId||null,
-         authScreen: leagueId ? "signin" : "landing"});
+    window.location.href = "index.html";
     return;
   }
-  if(!_leagueLoaded) {
-    S.currentUser = user;
-    set({currentUser:user});
-    loadLeague(user);
-  }
+  S.currentUser = user;
+  set({currentUser:user});
+  if(!_leagueLoaded) loadLeague(user);
 });
+
 
 const _splash = document.getElementById("splash-screen");
 if(_splash) {
   setTimeout(() => {
     _splash.classList.add("fade-out");
-    setTimeout(() => {
-      if(_splash.parentNode) _splash.parentNode.removeChild(_splash);
-      // Show back to D4 button
-      const backBtn = document.getElementById("d4-back-btn");
-      if(backBtn) backBtn.style.display = "block";
-    }, 600);
+    setTimeout(() => { if(_splash.parentNode) _splash.parentNode.removeChild(_splash); }, 600);
   }, 1900);
 }
 
