@@ -198,15 +198,22 @@ async function createLeague(name, teamCount, userEmail, uid, startDate=null) {
     hasUsedTransaction: false,
     players: [],
   }));
-  await setDoc(newLeagueRef, {
-    leagueName: name.toUpperCase(),
-    ownerUID: uid,
-    ownerEmail: userEmail,
-    createdAt: new Date().toISOString(),
-    lastUpdated: new Date().toISOString(),
-    seasonStartDate: startDate || null,
-    teams,
-  });
+  try {
+    console.log("[D4] writing to Firestore, leagueId:", leagueId);
+    await setDoc(newLeagueRef, {
+      leagueName: name.toUpperCase(),
+      ownerUID: uid,
+      ownerEmail: userEmail,
+      createdAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+      seasonStartDate: startDate || null,
+      teams,
+    });
+    console.log("[D4] setDoc succeeded");
+  } catch(e) {
+    console.error("[D4] setDoc FAILED:", e.code, e.message);
+    throw e;
+  }
   // Now set the global refs so startLeagueListener reads from the right place
   initFirebaseRefs(leagueId);
   return leagueId;
