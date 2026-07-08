@@ -3697,15 +3697,20 @@ function buildOnboarding() {
 function render() {
   const app = document.getElementById("app");
   app.innerHTML="";
-  // Show auth screen if not signed in
+  // Show loading if not signed in yet (auth may still be initializing)
   if(!S.currentUser) {
+    app.appendChild(h("div",{style:{minHeight:"100vh",background:C.bg,display:"flex",alignItems:"center",justifyContent:"center"}},
+      h("div",{style:{color:C.muted,fontSize:"14px"}},"Loading...")
+    ));
     return;
   }
 
   // Show league picker if signed in but no league selected
   if(S.authScreen === "finding_league") {
-    // Still loading — show nothing (splash handles this)
-    return document.createElement("div");
+    app.appendChild(h("div",{style:{minHeight:"100vh",background:C.bg,display:"flex",alignItems:"center",justifyContent:"center"}},
+      h("div",{style:{color:C.muted,fontSize:"14px"}},"Finding your league...")
+    ));
+    return;
   }
 
   // Show league setup only if signed in but league doc not yet saved
