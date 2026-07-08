@@ -3978,6 +3978,31 @@ onAuthStateChanged(auth, (user) => {
   }
   S.currentUser = user;
   set({currentUser:user});
+
+  // Check if D4 passed a specific league ID
+  const specificLeague = localStorage.getItem('d4_dingers_league');
+  if (specificLeague) {
+    localStorage.removeItem('d4_dingers_league');
+    set({leagueId: specificLeague, authScreen: "finding_league"});
+    initFirebaseRefs(specificLeague);
+    startLeagueListener(specificLeague, user);
+    return;
+  }
+
+  // Check if D4 wants us to auto-create a league
+  const createData = localStorage.getItem('d4_create_dingers');
+  if (createData) {
+    localStorage.removeItem('d4_create_dingers');
+    const { name, count } = JSON.parse(createData);
+    // Pre-fill the create league form
+    setTimeout(() => {
+      const nameEl = document.getElementById('league-name-input');
+      const countEl = document.getElementById('team-count-input');
+      if (nameEl) nameEl.value = name;
+      if (countEl) countEl.value = count;
+    }, 500);
+  }
+
   if(!_leagueLoaded) loadLeague(user);
 });
 
