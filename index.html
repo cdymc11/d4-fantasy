@@ -16,21 +16,34 @@
     }
     html, body { background: var(--bg); color: var(--white); font-family: var(--body); min-height: 100vh; }
 
-    /* NAV */
-    nav { display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 52px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    /* NAV — D4 hub only */
+    #main-nav { display: none; align-items: center; justify-content: space-between; padding: 0 24px; height: 52px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    #main-nav.visible { display: flex; }
     .nav-logo { font-family: var(--display); font-size: 22px; color: var(--green); cursor: pointer; letter-spacing: 1px; }
-    .nav-logo span { color: var(--muted); font-size: 13px; font-family: var(--body); font-weight: 500; margin-left: 6px; letter-spacing: 0; }
-    .nav-links { display: flex; gap: 4px; }
-    .nav-btn { background: none; border: none; color: var(--muted); font-family: var(--body); font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
-    .nav-btn:hover, .nav-btn.active { color: var(--white); background: var(--border); }
     .nav-right { display: flex; align-items: center; gap: 10px; }
     .nav-user { font-size: 13px; color: var(--muted); }
     .nav-signout { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--body); font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
     .nav-signout:hover { color: var(--white); border-color: var(--white); }
-    .nav-back { background: none; border: none; color: var(--muted); font-family: var(--body); font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 6px; cursor: pointer; display: none; }
-    .nav-back:hover { color: var(--white); background: var(--border); }
-    #main-nav { display: none; }
-    #main-nav.visible { display: flex; }
+
+    /* NFC APP HEADER */
+    .nfc-header { background: linear-gradient(135deg, var(--surface) 0%, #1e2430 100%); border-bottom: 1px solid var(--border); padding: 20px 20px 16px; }
+    .nfc-header-inner { max-width: 640px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+    .nfc-header-title { font-family: var(--display); font-size: 36px; letter-spacing: 0.05em; color: var(--green); line-height: 1; }
+    .nfc-header-sub { color: var(--muted); font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
+    .nfc-header-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+    .nfc-header-btn-row { display: flex; gap: 6px; align-items: center; }
+    .nfc-tab-bar { border-bottom: 1px solid var(--border); background: var(--surface); }
+    .nfc-tab-inner { max-width: 640px; margin: 0 auto; display: flex; padding: 0 16px; overflow-x: auto; }
+    .nfc-tab-btn { padding: 13px 16px; background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); font-weight: 500; font-size: 13px; cursor: pointer; white-space: nowrap; font-family: var(--body); transition: all 0.15s; }
+    .nfc-tab-btn.active { border-bottom-color: var(--green); color: var(--green); font-weight: 700; }
+    .nfc-body { max-width: 640px; margin: 0 auto; padding: 24px 16px 80px; }
+
+    /* NFC MODALS */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; width: 100%; max-width: 420px; padding: 28px 24px; max-height: 90vh; overflow-y: auto; }
+
+    /* FEEDBACK BUTTON */
+    .feedback-btn { position: fixed; bottom: 16px; right: 16px; z-index: 500; display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; background: var(--green); color: #000; font-size: 12px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(0,200,83,0.3); opacity: 0.85; cursor: pointer; border: none; font-family: var(--body); }
 
     /* SCREENS */
     .screen { display: none; }
@@ -324,12 +337,12 @@
   </div>
 </div>
 
-<!-- GRIDIRON APP -->
+<!-- NFC APP -->
 <div id="screen-nfl-confidence" class="screen">
 
   <!-- LOBBY (no league) -->
-  <div id="page-nfc-lobby" class="page">
-    <div class="label">NFL Confidence League</div>
+  <div id="page-nfc-lobby" class="page" style="max-width:640px;margin:0 auto;padding:36px 20px;">
+    <div class="label">NFL Confidence</div>
     <div class="display">Join or create a <em>league.</em></div>
     <p style="font-size:13px;color:var(--muted);margin-top:12px;">Create a new league and invite friends, or join one with an invite code.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px;">
@@ -364,9 +377,36 @@
     </div>
   </div>
 
+  <!-- APP HEADER (shown when in a league) -->
+  <div id="nfc-app-header" style="display:none;">
+    <div class="nfc-header">
+      <div class="nfc-header-inner">
+        <div>
+          <div class="nfc-header-title" id="nfc-header-league-name">🏈 NFL CONFIDENCE</div>
+          <div class="nfc-header-sub">Confidence Pool · 2026</div>
+        </div>
+        <div class="nfc-header-actions">
+          <div class="nfc-header-btn-row">
+            <button class="btn btn-gray" style="padding:6px 12px;font-size:12px;" onclick="nfcShowHelp()">?</button>
+            <button class="btn btn-green" style="padding:6px 14px;font-size:12px;font-weight:700;" id="nfc-manage-btn" onclick="nfcShowManage()">⚙️ Manage</button>
+            <button style="padding:6px 12px;border-radius:6px;cursor:pointer;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:12px;font-family:var(--body);" onclick="doSignOut()">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nfc-tab-bar">
+      <div class="nfc-tab-inner">
+        <button class="nfc-tab-btn active" data-tab="home"      onclick="nfcTab('home')">🏠 Home</button>
+        <button class="nfc-tab-btn"        data-tab="picks"     onclick="nfcTab('picks')">📋 Picks</button>
+        <button class="nfc-tab-btn"        data-tab="standings" onclick="nfcTab('standings')">🏆 Standings</button>
+        <button class="nfc-tab-btn"        data-tab="league"    onclick="nfcTab('league')">👥 League</button>
+      </div>
+    </div>
+  </div>
+
   <!-- HOME -->
   <div id="page-nfc-home" class="page">
-    <div class="week-badge" id="nfc-home-badge">Week —</div>
+    <div class="nfc-body"><div class="week-badge" id="nfc-home-badge">Week —</div>
     <div class="display">Make your <em>picks.</em></div>
     <div class="status-row">
       <div class="dot" id="nfc-home-dot"></div>
@@ -385,7 +425,7 @@
 
   <!-- PICKS -->
   <div id="page-nfc-picks" class="page">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div class="nfc-body"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
       <div>
         <div class="label">Week <span id="nfc-picks-week">—</span></div>
         <h2 style="margin:0">Pick Sheet</h2>
@@ -402,7 +442,7 @@
 
   <!-- STANDINGS -->
   <div id="page-nfc-standings" class="page">
-    <div class="label">Season</div>
+    <div class="nfc-body"><div class="label">Season</div>
     <h2>Standings</h2>
     <div class="week-nav">
       <button class="btn btn-gray" style="padding:6px 14px" onclick="nfcShiftWeek(-1)">←</button>
@@ -419,7 +459,7 @@
 
   <!-- LEAGUE -->
   <div id="page-nfc-league" class="page">
-    <div class="label">Your League</div>
+    <div class="nfc-body"><div class="label">Your League</div>
     <h2 id="nfc-league-name">—</h2>
     <div class="label">Invite Code</div>
     <div class="code-display" id="nfc-league-code">——</div>
@@ -533,7 +573,14 @@ function showScreen(name) {
   }
 }
 
-window.goDash = function() { showScreen('dash'); currentApp = null; renderDash(); };
+window.goDash = function() {
+  showScreen('dash');
+  currentApp = null;
+  // Hide NFC feedback button
+  const fb = document.getElementById('nfc-feedback-btn');
+  if (fb) fb.style.display = 'none';
+  renderDash();
+};
 window.goBack = function() { goDash(); };
 
 // ── DASHBOARD ──
@@ -645,6 +692,7 @@ window.launchApp = async function(app, leagueId) {
       const lsnap = await getDoc(doc(db,'leagues',leagueId));
       if (lsnap.exists()) {
         nfcLeague = { id: lsnap.id, ...lsnap.data() };
+        document.getElementById('nfc-feedback-btn').style.display = 'flex';
         nfcGo('home');
         return;
       }
@@ -733,12 +781,18 @@ function authErr(code){
 window.nfcGo = function(p) {
   document.querySelectorAll('#screen-nfl-confidence .page').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-nfc-'+p).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.p===p));
+  // Show/hide app header
+  const hdr = document.getElementById('nfc-app-header');
+  if (hdr) hdr.style.display = (p === 'lobby') ? 'none' : '';
+  // Update tab active state
+  document.querySelectorAll('.nfc-tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===p));
   if(p==='home')      nfcRenderHome();
   if(p==='picks')     nfcRenderPicks();
   if(p==='standings') nfcRenderStandings();
   if(p==='league')    nfcRenderLeague();
 };
+
+window.nfcTab = function(p) { nfcGo(p); };
 
 // ── NFC LOBBY ──
 window.nfcShowCreate = function() {
@@ -968,7 +1022,7 @@ async function nfcRenderLeague(){
   }
   document.getElementById('nfc-league-name').textContent=nfcLeague.name||'—';
   document.getElementById('nfc-league-code').textContent=nfcLeague.passcode||'——';
-  if(currentUser&&nfcLeague.commissionerId===currentUser.uid)document.getElementById('nfc-commish-panel').style.display='';
+
   const ml=document.getElementById('nfc-members-list');
   if(!nfcLeague.members?.length){ml.innerHTML='<div class="member-row" style="color:var(--muted)">No members yet.</div>';return;}
   const memberDocs=await Promise.all(nfcLeague.members.map(uid=>getDoc(doc(db,'users',uid))));
