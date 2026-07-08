@@ -3535,69 +3535,6 @@ function buildDraftRecap(ds, wrap) {
 
 
 
-// ── Auth Screen ───────────────────────────────────────────────────────────────
-
-function buildPickLeague() {
-  const wrap = h("div",{style:{minHeight:"100vh",background:C.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"32px 24px"}});
-  wrap.appendChild(h("div",{style:{fontFamily:"'Bebas Neue',sans-serif",fontSize:"40px",color:C.accent,letterSpacing:"0.05em",marginBottom:"24px",textAlign:"center"}},"⚾ DINGERS ONLY"));
-  const card = h("div",{style:{background:C.card,border:`1px solid ${C.border}`,borderRadius:"16px",padding:"28px 24px",width:"100%",maxWidth:"400px"}});
-
-  // Loading state
-  if(S.authLoading) {
-    card.appendChild(h("div",{style:{textAlign:"center",padding:"20px 0"}},
-      h("div",{style:{color:C.muted,fontSize:"14px"}},"Finding your league…")
-    ));
-    wrap.appendChild(card);
-    return wrap;
-  }
-
-  // Found multiple leagues — let user pick
-  if(S.foundLeagues?.length > 1) {
-    card.appendChild(h("div",{style:{color:C.text,fontWeight:"800",fontSize:"18px",marginBottom:"6px"}},"Your Leagues"));
-    card.appendChild(h("div",{style:{color:C.muted,fontSize:"13px",marginBottom:"16px"}},"Select a league to continue:"));
-    S.foundLeagues.forEach(league => {
-      card.appendChild(h("button",{
-        style:{width:"100%",padding:"12px 16px",borderRadius:"8px",cursor:"pointer",fontWeight:"700",fontSize:"14px",
-          background:`${C.accent}18`,border:`1px solid ${C.accent}44`,color:C.accent,marginBottom:"8px",textAlign:"left"},
-        onClick:async()=>{
-          initFirebaseRefs(league.id);
-          setLeagueIdInUrl(league.id);
-          window.location.href = "index.html";
-          window.location.reload();
-        }
-      },league.name || league.id));
-    });
-  } else {
-    // No leagues found
-    card.appendChild(h("div",{style:{color:C.text,fontWeight:"800",fontSize:"18px",marginBottom:"6px"}},"No League Found"));
-    card.appendChild(h("div",{style:{color:C.muted,fontSize:"13px",lineHeight:"1.5",marginBottom:"16px"}},"We couldn't find a league linked to your account. Use the link your commissioner sent you, or create a new league."));
-  }
-
-  if(S.authError) card.appendChild(h("div",{style:{color:C.red,fontSize:"12px",marginBottom:"12px",padding:"8px 12px",background:C.red+"11",borderRadius:"6px"}},S.authError));
-
-  card.appendChild(h("button",{
-    style:{width:"100%",padding:"13px",borderRadius:"10px",cursor:"pointer",fontWeight:"800",fontSize:"15px",background:C.accent,border:"none",color:"#fff",marginBottom:"10px"},
-    onClick:()=>set({authScreen:"signup",authError:""})
-  },"Create New League"));
-  card.appendChild(h("button",{
-    style:{width:"100%",padding:"13px",borderRadius:"10px",cursor:"pointer",fontWeight:"700",fontSize:"14px",background:"transparent",border:`1px solid ${C.border}`,color:C.muted},
-    onClick:()=>{ if(confirm("Sign out?")) doSignOut(); }
-  },"Sign Out"));
-  wrap.appendChild(card);
-  return wrap;
-}
-
-function buildAuthScreen() {
-  const wrap = h("div",{style:{minHeight:"100vh",background:C.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"32px 24px"}});
-
-  // Logo
-  const logo = h("div",{style:{textAlign:"center",marginBottom:"32px"}});
-  logo.appendChild(h("div",{style:{fontFamily:"'Bebas Neue',sans-serif",fontSize:"48px",color:C.accent,letterSpacing:"0.05em",lineHeight:"1"}},"⚾ DINGERS ONLY"));
-  logo.appendChild(h("div",{style:{color:C.muted,fontSize:"13px",letterSpacing:"0.15em",textTransform:"uppercase",marginTop:"4px"}},"Fantasy Baseball"));
-  wrap.appendChild(logo);
-
-  const card = h("div",{style:{background:C.card,border:`1px solid ${C.border}`,borderRadius:"16px",padding:"28px 24px",width:"100%",maxWidth:"400px",boxShadow:`0 4px 24px ${C.accent}11`}});
-
 function buildLeagueSetup() {
   const wrap = h("div",{style:{minHeight:"100vh",background:C.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"32px 24px"}});
   wrap.appendChild(h("div",{style:{fontFamily:"'Bebas Neue',sans-serif",fontSize:"48px",color:C.accent,letterSpacing:"0.05em",marginBottom:"8px",textAlign:"center"}},"⚾ DINGERS ONLY"));
@@ -3761,7 +3698,6 @@ function render() {
   app.innerHTML="";
   // Show auth screen if not signed in
   if(!S.currentUser) {
-    app.appendChild(buildAuthScreen());
     return;
   }
 
@@ -3769,10 +3705,6 @@ function render() {
   if(S.authScreen === "finding_league") {
     // Still loading — show nothing (splash handles this)
     return document.createElement("div");
-  }
-  if(S.authScreen === "pick_league") {
-    app.appendChild(buildPickLeague());
-    return;
   }
 
   // Show league setup only if signed in but league doc not yet saved
@@ -4012,19 +3944,12 @@ async function loadLeague(user) {
       if(found.length === 1) {
         leagueId = found[0].id;
       } else if(found.length > 1) {
-        set({authScreen:"pick_league", authLoading:false, foundLeagues:found});
-        _leagueLoaded = false;
-        return;
+        window.location.href = "index.html"; return;
       } else {
-        set({authScreen:"pick_league", authLoading:false, foundLeagues:[]});
-        _leagueLoaded = false;
-        return;
+        window.location.href = "index.html"; return;
       }
     } catch(e) {
-      set({authScreen:"pick_league", authLoading:false, foundLeagues:[],
-           authError:"Error finding league: " + e.message});
-      _leagueLoaded = false;
-      return;
+      console.error("Error finding league:", e); window.location.href = "index.html"; return;
     }
   }
 
