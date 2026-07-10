@@ -676,15 +676,19 @@ window.launchApp = async function(app, leagueId) {
     showScreen('nfl-confidence');
     // If a specific league ID was passed, load it directly
     if (leagueId) {
-      const lsnap = await getDoc(doc(db,'leagues',leagueId));
-      if (lsnap.exists()) {
-        nfcLeague = { id: lsnap.id, ...lsnap.data() };
-        document.getElementById('nfc-feedback-btn').style.display = 'flex';
-        document.getElementById('nfc-app-header').style.display = '';
-        nfcGo('home');
-        return;
-      }
+      try {
+        const lsnap = await getDoc(doc(db,'leagues',leagueId));
+        if (lsnap.exists()) {
+          nfcLeague = { id: lsnap.id, ...lsnap.data() };
+          document.getElementById('nfc-feedback-btn').style.display = 'flex';
+          document.getElementById('nfc-app-header').style.display = '';
+          nfcGo('home');
+          return;
+        }
+      } catch(e) { console.error('launchApp NFC error:', e); }
     }
+    // No league — show lobby
+    document.getElementById('nfc-app-header').style.display = 'none';
     nfcGo('lobby');
   } else if (app === 'dingers') {
     // Always store leagueId so dingers.html can load immediately on auth
