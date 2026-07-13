@@ -377,7 +377,7 @@
     <div class="nfc-header">
       <div class="nfc-header-inner">
         <div>
-          <div style="font-size:12px;margin-bottom:6px;"><button onclick="goDash()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:0;font-family:var(--body);">← Back to D4</button></div>
+          <div style="margin-bottom:10px;"><button onclick="goDash()" style="background:#161B22;border:1px solid #2A2D35;color:#6E7681;font-family:var(--body);font-size:13px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;">← D4</button></div>
           <div class="nfc-header-title" id="nfc-header-league-name">🏈 NFL CONFIDENCE</div>
           <div class="nfc-header-sub">Confidence Pool · 2026</div>
         </div>
@@ -1168,6 +1168,130 @@ window.nfcScoreWeek=async function(){
 };
 
 // ── TOAST ──
+
+  // ── NFC HELP MODAL ──
+  window.nfcShowHelp = function() {
+    document.getElementById('nfc-help-modal').style.display = 'flex';
+  };
+
+  // ── NFC MANAGE MODAL ──
+  window.nfcShowManage = async function() {
+    document.getElementById('nfc-manage-modal').style.display = 'flex';
+    var isCommish = nfcLeague && currentUser && nfcLeague.commissionerId === currentUser.uid;
+    var commishEl = document.getElementById('nfc-manage-commish');
+    if (commishEl) commishEl.style.display = isCommish ? '' : 'none';
+    var codeEl = document.getElementById('nfc-manage-code');
+    if (codeEl) codeEl.textContent = nfcLeague ? nfcLeague.passcode || '——' : '——';
+    var ml = document.getElementById('nfc-manage-members');
+    if (!nfcLeague || !nfcLeague.members || !nfcLeague.members.length) {
+      if (ml) ml.innerHTML = '<div class="member-row" style="color:var(--muted)">No members yet.</div>';
+      return;
+    }
+    var memberDocs = await Promise.all(nfcLeague.members.map(function(uid) { return getDoc(doc(db,'users',uid)); }));
+    ml.innerHTML = memberDocs.map(function(s) {
+      var d = s.data() || {};
+      var isYou = s.id === (currentUser ? currentUser.uid : '');
+      var isC = s.id === nfcLeague.commissionerId;
+      return '<div class="member-row"><span>' + (d.displayName||'Unknown') + (isYou?'<span class="member-you">You</span>':'') + (isC?'<span class="member-commish">Commish</span>':'') + '</span></div>';
+    }).join('');
+  };
+
+  // ── NFC FEEDBACK ──
+  window.nfcOpenFeedback = function() {
+    document.getElementById('nfc-feedback-modal').style.display = 'flex';
+  };
+  window.nfcSubmitFeedback = async function() {
+    var name = document.getElementById('fb-name').value.trim();
+    var msg = document.getElementById('fb-message').value.trim();
+    var err = document.getElementById('fb-err');
+    err.textContent = '';
+    if (!msg) { err.textContent = 'Please enter a message.'; return; }
+    try {
+      var res = await fetch('https://formspree.io/f/xykqaqak', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ name: name || 'Anonymous', message: msg, app: 'NFL Confidence' })
+      });
+      if (res.ok) {
+        document.getElementById('nfc-feedback-modal').style.display = 'none';
+        document.getElementById('fb-message').value = '';
+        toast('Feedback sent!', 'ok');
+      } else { err.textContent = 'Error sending. Try again.'; }
+    } catch(e) { err.textContent = 'Error sending. Try again.'; }
+  };
+
+  // ── NFC COMMISSIONER TOOLS ──
+  window.nfcLoadWeek = async function() {
+    var wn = parseInt(document.getElementById('nfc-admin-week').value);
+    var err = document.getElementById('nfc-admin-err');
+    var inf = document.getElementById('nfc-admin-info');
+    err.textContent=''; inf.textContent='Loading...';
+    if(!nfcLeague){err.textContent='No league.';inf.textContent='';return;}
+    var games = SCHEDULE[wn];
+    if(!games||!games.length){err.textContent='No games for that week.';inf.textContent='';return;}
+    try{
+      await setDoc(doc(db,'leagues',nfcLeague.id,'weeks',String(wn)),{weekNumber:wn,games:games,isLocked:false,fetchedAt:serverTimestamp()});
+      if(wn>=(nfcLeague.currentWeek||1)){await updateDoc(doc(db,'leagues',nfcLeague.id),{currentWeek:wn});nfcLeague.currentWeek=wn;}
+      inf.textContent='Done! '+games.length+' games loaded for Week '+wn+'.';toast('Week '+wn+' loaded!','ok');
+    }catch(e){err.textContent='Error: '+e.message;inf.textContent='';}
+  };
+
+  window.nfcEnterResults = async function() {
+    var wn = parseInt(document.getElementById('nfc-admin-week').value);
+    var err = document.getElementById('nfc-admin-err'); err.textContent='';
+    if(!nfcLeague){err.textContent='No league.';return;}
+    var ws = await getDoc(doc(db,'leagues',nfcLeague.id,'weeks',String(wn)));
+    if(!ws.exists()){err.textContent='Load the week first.';return;}
+    var wd = ws.data();
+    var updated = wd.games.map(function(g){
+      var w = prompt(g.awayTeam+' @ '+g.homeTeam+'\nWinner? (abbreviation or blank)');
+      if(!w) return Object.assign({},g,{result:null,completed:false});
+      var wu = w.trim().toUpperCase();
+      var result = wu===g.awayTeam?'away':wu===g.homeTeam?'home':null;
+      return Object.assign({},g,{result:result,completed:!!result});
+    });
+    await setDoc(doc(db,'leagues',nfcLeague.id,'weeks',String(wn)),Object.assign({},wd,{games:updated,fetchedAt:serverTimestamp()}));
+    toast('Results saved!','ok');
+  };
+
+  window.nfcScoreWeek = async function() {
+    var wn = parseInt(document.getElementById('nfc-admin-week').value);
+    var err = document.getElementById('nfc-admin-err');
+    var inf = document.getElementById('nfc-admin-info');
+    err.textContent=''; inf.textContent='Scoring...';
+    if(!nfcLeague){err.textContent='No league.';return;}
+    var ws = await getDoc(doc(db,'leagues',nfcLeague.id,'weeks',String(wn)));
+    if(!ws.exists()){err.textContent='Load the week first.';inf.textContent='';return;}
+    var wd=ws.data(),rm={};
+    wd.games.forEach(function(g){rm[g.gameId]={result:g.result,awayTeam:g.awayTeam,homeTeam:g.homeTeam};});
+    var ps = await getDocs(collection(db,'leagues',nfcLeague.id,'picks'));
+    var wp=[];ps.forEach(function(d){var pd=d.data();if(pd.weekNumber===wn)wp.push({id:d.id,userId:pd.userId,displayName:pd.displayName,picks:pd.picks,weekNumber:pd.weekNumber});});
+    if(!wp.length){inf.textContent='No picks for this week.';return;}
+    var scored=0;
+    for(var i=0;i<wp.length;i++){
+      var pd=wp[i];
+      var pts=0,correct=0;
+      var sp=pd.picks.map(function(p){
+        var g=rm[p.gameId];if(!g||!g.result)return Object.assign({},p,{correct:null,pointsEarned:0});
+        var side=p.pickedTeam===g.awayTeam?'away':p.pickedTeam===g.homeTeam?'home':null;
+        var ok=side===g.result,earned=ok?p.confidencePoints:0;
+        pts+=earned;if(ok)correct++;return Object.assign({},p,{correct:ok,pointsEarned:earned});
+      });
+      await updateDoc(doc(db,'leagues',nfcLeague.id,'picks',pd.id),{scoredPicks:sp,weekPoints:pts,weekCorrect:correct,scored:true});
+      var sr=doc(db,'leagues',nfcLeague.id,'standings',pd.userId);
+      var ss=await getDoc(sr);
+      if(ss.exists()){
+        var ex=ss.data(),bd=ex.weeklyBreakdown||{};bd[wn]={points:pts,correct:correct};
+        var tp=0,tc=0;Object.values(bd).forEach(function(w){tp+=(w.points||0);tc+=(w.correct||0);});
+        await updateDoc(sr,{totalPoints:tp,totalCorrect:tc,weeklyBreakdown:bd,displayName:pd.displayName,userId:pd.userId});
+      }else{
+        await setDoc(sr,{userId:pd.userId,displayName:pd.displayName,totalPoints:pts,totalCorrect:correct,weeklyBreakdown:Object.fromEntries([[wn,{points:pts,correct:correct}]])});
+      }
+      scored++;
+    }
+    inf.textContent='Week '+wn+' scored! '+scored+' entries updated.';toast('Week '+wn+' scored!','ok');
+  };
+
 function toast(msg,type=''){
   const el=document.getElementById('toast');
   el.textContent=msg;el.className='show'+(type?' '+type:'');
