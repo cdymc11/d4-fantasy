@@ -377,6 +377,7 @@
     <div class="nfc-header">
       <div class="nfc-header-inner">
         <div>
+          <div style="font-size:12px;margin-bottom:6px;"><button onclick="goDash()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;padding:0;font-family:var(--body);">← Back to D4</button></div>
           <div class="nfc-header-title" id="nfc-header-league-name">🏈 NFL CONFIDENCE</div>
           <div class="nfc-header-sub">Confidence Pool · 2026</div>
         </div>
@@ -401,7 +402,8 @@
 
   <!-- HOME -->
   <div id="page-nfc-home" class="page">
-    <div class="nfc-body"><div class="week-badge" id="nfc-home-badge">Week —</div>
+    <div class="nfc-body">
+    <div class="week-badge" id="nfc-home-badge">Week —</div>
     <div class="display">Make your <em>picks.</em></div>
     <div class="status-row">
       <div class="dot" id="nfc-home-dot"></div>
@@ -416,11 +418,13 @@
       </table>
     </div>
     <button class="btn btn-green mt24" onclick="nfcGo('picks')">Go to Pick Sheet →</button>
+    </div>
   </div>
 
   <!-- PICKS -->
   <div id="page-nfc-picks" class="page">
-    <div class="nfc-body"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div class="nfc-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
       <div>
         <div class="label">Week <span id="nfc-picks-week">—</span></div>
         <h2 style="margin:0">Pick Sheet</h2>
@@ -433,11 +437,13 @@
       <div class="progress"><strong id="nfc-cnt-assigned">0</strong> / <span id="nfc-cnt-total">0</span> assigned</div>
       <button class="btn btn-green" id="nfc-submit-btn" onclick="nfcSubmitPicks()" disabled>Submit Picks</button>
     </div>
+    </div>
   </div>
 
   <!-- STANDINGS -->
   <div id="page-nfc-standings" class="page">
-    <div class="nfc-body"><div class="label">Season</div>
+    <div class="nfc-body">
+    <div class="label">Season</div>
     <h2>Standings</h2>
     <div class="week-nav">
       <button class="btn btn-gray" style="padding:6px 14px" onclick="nfcShiftWeek(-1)">←</button>
@@ -450,11 +456,13 @@
         <tbody id="nfc-standings-body"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No scores yet.</td></tr></tbody>
       </table>
     </div>
+    </div>
   </div>
 
   <!-- LEAGUE -->
   <div id="page-nfc-league" class="page">
-    <div class="nfc-body"><div class="label">Your League</div>
+    <div class="nfc-body">
+    <div class="label">Your League</div>
     <h2 id="nfc-league-name">—</h2>
     <div class="label">Invite Code</div>
     <div class="code-display" id="nfc-league-code">——</div>
@@ -835,8 +843,10 @@ function authErr(code){
 
 // ── GRIDIRON NAV ──
 window.nfcGo = function(p) {
+  console.log('[NFC] nfcGo called:', p);
   document.querySelectorAll('#screen-nfl-confidence .page').forEach(el=>el.classList.remove('active'));
   const page = document.getElementById('page-nfc-'+p);
+  console.log('[NFC] page element:', page ? 'found' : 'NOT FOUND');
   if (page) page.classList.add('active');
   // Show/hide app header
   const hdr = document.getElementById('nfc-app-header');
